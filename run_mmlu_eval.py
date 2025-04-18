@@ -51,7 +51,7 @@ def main():
     args = parser.parse_args()
 
     print(f"Loading MMLU validation split...")
-    dataset = load_dataset("cais/mmlu", split="validation")
+    dataset = load_dataset("cais/mmlu", 'all', split="validation")
     print(f"Loaded {len(dataset)} examples")
 
     for model_name, label in [(args.weak_model, 'Weak'), (args.strong_model, 'Strong')]:
