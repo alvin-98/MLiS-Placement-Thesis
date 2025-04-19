@@ -29,6 +29,11 @@ def evaluate_model(model_name, dataset, device, max_samples=None):
         with torch.no_grad():
             outputs = model.generate(**inputs, max_new_tokens=10, do_sample=False)
         gen = tokenizer.decode(outputs[0][inputs['input_ids'].size(-1):], skip_special_tokens=True)
+        
+        tokens = gen.strip().split()
+        if not tokens: #fix for if the model generates nothing
+            total += 1  
+            continue    
         pred = gen.strip().split()[0]
 
         # normalize true label to letter (index -> letter)
