@@ -28,7 +28,7 @@ def evaluate_model(model_name, dataset, device, weak_model_df, strong_model_df, 
         
         inputs = tokenizer(prompt, return_tensors='pt').to(device)
         with torch.no_grad():
-            outputs = model.generate(**inputs, max_new_tokens=10, do_sample=False)
+            outputs = model.generate(**inputs, max_new_tokens=10, do_sample=False, pad_token_id=tokenizer.eos_token_id)
         gen = tokenizer.decode(outputs[0][inputs['input_ids'].size(-1):], skip_special_tokens=True)
                       
         tokens = gen.strip().split()
@@ -75,8 +75,8 @@ def main():
         correct, total = evaluate_model(model_name, dataset, args.device, weak_model_df, strong_model_df, args.max_samples)
         print(f"{label} accuracy: {correct}/{total} = {correct/total:.4f}")
     
-    weak_model_df.to_csv('weak_model_predictions.csv', index=False)
-    strong_model_df.to_csv('strong_model_predictions.csv', index=False)
+    weak_model_df.to_csv('weak_model_predictions.csv', index=True)
+    strong_model_df.to_csv('strong_model_predictions.csv', index=True)
 
 if __name__ == '__main__':
     main()
