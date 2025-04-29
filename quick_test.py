@@ -1,3 +1,5 @@
+'File to quickly test changes to the code - runs 10 samples on weak model and saves predictions to csv files'
+
 import argparse
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -16,7 +18,8 @@ def evaluate_model(model_name, dataset, device, weak_model_df, strong_model_df, 
         dataset = dataset.select(range(min(max_samples, len(dataset))))
     
     # system instruction for multiple-choice exam
-    system_instruction = """You are a knowledgeable assistant taking a multiple-choice exam. Read the multiple‑choice question and answer with a single capital letter (A, B, C or D) only."""
+    system_instruction = """You are a knowledgeable assistant taking a multiple-choice exam. Read the multiple‑choice question
+    and answer with a single capital letter (A, B, C or D) only. DO NOT INCLUDE BRACKETS AROUND THE LETTER"""
     
     for ex in tqdm(dataset, desc=f"Evaluating {model_name}", total=len(dataset)):
         question = ex['question']
@@ -36,10 +39,11 @@ def evaluate_model(model_name, dataset, device, weak_model_df, strong_model_df, 
             total += 1
             continue
             
-        pred = gen.strip().split().strip("()")
-              
+        pred = gen.strip().split()[0].strip("()")
+        
         # normalize true label to letter (index -> letter)
         true = chr(65 + int(label))
+        
         
         if pred == true:
             correct += 1
@@ -59,7 +63,6 @@ def main():
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--weak_model', default='distilbert/distilgpt2')
-    parser.add_argument('--strong_model', default='deepseek-ai/DeepSeek-R1-Distill-Qwen-7B')
     parser.add_argument('--max_samples', type=int, default=None,
                         help='Max number of samples to evaluate')
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
@@ -69,9 +72,9 @@ def main():
     dataset = load_dataset("cais/mmlu", 'all', split="validation")
     print(f"Loaded {len(dataset)} examples")
     
-    for model_name, label in [(args.weak_model, 'Weak'), (args.strong_model, 'Strong')]:
+    for model_name, label in [(args.weak_model, 'Weak')]:
         print(f"\nEvaluating {label} model: {model_name}")
-        correct, total = evaluate_model(model_name, dataset, args.device, weak_model_df, strong_model_df, args.max_samples)
+        correct, total = evaluate_model(model_name, dataset, args.device, weak_model_df, strong_model_df, 10)
         print(f"{label} accuracy: {correct}/{total} = {correct/total:.4f}")
     
     weak_model_df.to_csv('weak_model_predictions.csv', index=True)
