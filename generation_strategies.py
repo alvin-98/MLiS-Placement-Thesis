@@ -6,6 +6,101 @@ import torch
 from tqdm.auto import tqdm
 import pandas as pd
 
+def top_k(model,input_ids, attention_mask, args):
+    """
+    Top-k sampling decoding: sample from the top-k most probable tokens.
+    """
+    eos_id = model.config.eos_token_id
+    device = input_ids.device
+    generated = input_ids
+    mask = attention_mask
+    past = None
+    for _ in range(args.max_new_tokens):
+        if past is None:
+            out = model(
+                input_ids=generated,
+                attention_mask=mask,
+                use_cache=True
+            )
+        else:
+            out = model(
+                input_ids=generated[:, -1:],
+                attention_mask=mask,
+                past_key_values=past,
+                use_cache=True
+            )
+        logits = out.logits[:, -1, :]
+        past = out.past_key_values
+        # apply temperature
+        logits = logits / args.temperature
+        # top-k sampling
+        topk_vals, topk_idx = torch.topk(logits, args.k, dim=-1)
+        probs = torch.zeros_like(logits).scatter_(1, topk_idx, torch.softmax(topk_vals, dim=-1))
+        next_token = torch.multinomial(probs, num_samples=1)
+        generated = torch.cat([generated, next_token], dim=-1)
+        mask = torch.cat([
+            mask,
+            torch.ones((generated.size(0), 1), dtype=mask.dtype, device=device)
+        ], dim=-1)
+        if next_token.item() == eos_id:
+            break
+    return generated[:, input_ids.size(1):]
+
+def top_p_sorter(logits,p):
+    sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+    sorted_probs = torch.nn.functional.softmax(sorted_logits, dim=-1)
+    cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
+    
+    cutoff = (cumulative_probs > p).nonzero(as_tuple=True)[1][0] + 1
+
+    top_p_probs = sorted_probs[:, :cutoff]
+    top_p_indices = sorted_indices[:, :cutoff]
+
+    return top_p_probs, top_p_indices
+
+def top_p(model,input_ids, attention_mask, args):
+    """
+    Top-p sampling decoding: sample from the top-p most probable tokens.
+    """
+    eos_id = model.config.eos_token_id
+    device = input_ids.device
+    generated = input_ids
+    mask = attention_mask
+    past = None
+    for _ in range(args.max_new_tokens):
+        if past is None:
+            out = model(
+                input_ids=generated,
+                attention_mask=mask,
+                use_cache=True
+            )
+        else:
+            out = model(
+                input_ids=generated[:, -1:],
+                attention_mask=mask,
+                past_key_values=past,
+                use_cache=True
+            )
+        logits = out.logits[:, -1, :]
+        past = out.past_key_values
+        # apply temperature
+        logits = logits / args.temperature
+        # top-k sampling
+        topp_vals, topp_idx = top_p_sorter(logits, args.p)
+        probs = torch.zeros_like(logits).scatter_(1, topp_idx, torch.softmax(topp_vals, dim=-1))
+        next_token = torch.multinomial(probs, num_samples=1)
+        generated = torch.cat([generated, next_token], dim=-1)
+        mask = torch.cat([
+            mask,
+            torch.ones((generated.size(0), 1), dtype=mask.dtype, device=device)
+        ], dim=-1)
+        if next_token.item() == eos_id:
+            break
+    return generated[:, input_ids.size(1):]
+
+
+    
+
 def greedy_search(model, input_ids, attention_mask, args):
     """
     Greedy decoding: pick the highest-probability token at each step.
@@ -189,6 +284,10 @@ def generate(model, input_ids, attention_mask, args):
         return beam_search(model, input_ids, attention_mask, args)
     elif args.strategy == 'best_of':
         return best_of_n(model, input_ids, attention_mask, args)
+    elif args.strategy == 'top_k':
+        return top_k(model, input_ids, attention_mask, args)
+    elif args.strategy == 'top_p':
+        return top_p(model, input_ids, attention_mask, args)
     else:
         raise ValueError(f"Unknown strategy: {args.strategy}")
 
@@ -196,7 +295,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='distilbert/distilgpt2', help='HuggingFace model')
     parser.add_argument('--strategy', choices=[
-        'greedy','beam_search','best_of'
+        'greedy','beam_search','best_of','top_k','top_p'
     ], default='best_of')
     parser.add_argument('--num_beams', type=int, default=2, help='Number of beams')
     parser.add_argument('--best_of', type=int, default=2, help='Best-of-N samples')
@@ -206,6 +305,7 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--temperature', type=float, default=1.0, help='Temperature for sampling')
     parser.add_argument('--k', type=int, default=5, help='Top-k sampling')
+    parser.add_argument('--p', type=float, default=0.9, help='Top-p sampling')
     args = parser.parse_args()
 
     if args.verbose:
