@@ -18,4 +18,215 @@ The following have been reloaded with a version change:
 Warning: 'conda-forge' already in 'channels' list, moving to the top
 Collecting package metadata (current_repodata.json): ...working... WARNING conda.models.version:get_matcher(556): Using .* with relational operator is superfluous and deprecated and will be removed in a future version of conda. Your spec was 1.7.1.*, but conda is ignoring the .* and treating it as 1.7.1
 done
-Solving environment: ...working... 
+Solving environment: ...working... done
+
+
+==> WARNING: A newer version of conda exists. <==
+  current version: 23.7.4
+  latest version: 25.5.0
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+Or to minimize the number of packages updated during conda update use
+
+     conda install conda=25.5.0
+
+
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/_libgcc_mutex-0.1-conda_forge.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/_openmp_mutex-4.5-2_gnu.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/binutils_impl_linux-64-2.40-ha885e6a_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/bzip2-1.0.8-h4bc722e_7.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/bzip2-1.0.8-hd590300_5.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/c-ares-1.28.1-hd590300_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/ca-certificates-2024.2.2-hbcca054_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/ca-certificates-2024.8.30-hbcca054_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/gcc-13.2.0-hc7bed06_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/gcc_impl_linux-64-13.2.0-h1d3d475_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/hyphy-2.5.60-h0705fce_1.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/kernel-headers_linux-64-2.6.32-he073ed8_17.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/keyutils-1.6.1-h166bdaf_0.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/krb5-1.21.2-h659d440_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/ld_impl_linux-64-2.40-h55db66e_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/ld_impl_linux-64-2.43-h712a8e2_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libcurl-8.7.1-hca28451_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libedit-3.1.20191231-he28a2e2_2.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libev-4.33-hd590300_2.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libexpat-2.6.2-h59595ed_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libexpat-2.6.3-h5888daf_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libffi-3.4.2-h7f98852_5.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libffi-3.4.4-h6a678d5_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgcc-14.1.0-h77fa898_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgcc-devel_linux-64-13.2.0-h95c4c6d_106.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgcc-ng-13.2.0-hc881cc4_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgcc-ng-14.1.0-h69a702a_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgfortran-ng-13.2.0-h69a702a_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgfortran5-13.2.0-h43f5ff8_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgomp-13.2.0-hc881cc4_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libgomp-14.1.0-h77fa898_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libnghttp2-1.58.0-h47da74e_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libnsl-2.0.1-hd590300_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libsanitizer-13.2.0-h95c4c6d_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libsqlite-3.45.3-h2797004_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libsqlite-3.46.1-hadc24fc_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libssh2-1.11.0-h0841786_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libstdcxx-14.1.0-hc0a3c3a_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libstdcxx-ng-13.2.0-h95c4c6d_6.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libstdcxx-ng-14.1.0-h4852527_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libuuid-2.38.1-h0b41bf4_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libxcrypt-4.4.36-hd590300_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libzlib-1.2.13-hd590300_5.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/libzlib-1.3.1-h4ab18f5_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/make-4.3-hd18ef5c_1.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/mpi-1.0-openmpi.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/ncurses-6.4.20240210-h59595ed_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/ncurses-6.5-he02047a_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/openmpi-4.1.6-hc5af2df_101.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/openssl-3.2.1-hd590300_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/openssl-3.3.2-hb9d3cd8_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/paml-4.10.7-h031d066_1.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/perl-5.26.2-h36c2ea0_1008.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/perl-app-cpanminus-1.7044-pl526_1.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/perl-file-which-1.23-pl526_0.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/perl-statistics-distributions-1.02-pl526_1.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/pip-24.0-pyhd8ed1ab_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/pip-24.2-pyh8b19718_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/python-3.12.3-hab00c5b_0_cpython.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/python-3.12.6-hc5c86c4_1_cpython.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/readline-8.2-h8228510_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/setuptools-69.5.1-pyhd8ed1ab_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/setuptools-75.1.0-pyhd8ed1ab_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/sysroot_linux-64-2.12-he073ed8_17.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/tk-8.6.13-noxft_h4845f30_101.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/tzdata-2024a-h0c530f3_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/tzdata-2024a-h8827d51_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/wheel-0.43.0-pyhd8ed1ab_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/wheel-0.44.0-pyhd8ed1ab_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/xz-5.2.6-h166bdaf_0.tar.bz2.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/xz-5.4.6-h5eee18b_1.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/zlib-1.2.13-hd590300_5.conda.  Please remove this file manually (you may need to reboot to free file handles)
+WARNING conda.gateways.disk.delete:unlink_or_rename_to_trash(188): Could not remove or rename /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/pkgs/zstd-1.5.5-hfc55251_0.conda.  Please remove this file manually (you may need to reboot to free file handles)
+
+## Package Plan ##
+
+  environment location: /gpfs01/home/ppytr13/.conda/envs/nlp
+
+  added / updated specs:
+    - accelerate
+    - datasets
+    - transformers
+
+
+The following NEW packages will be INSTALLED:
+
+  accelerate         conda-forge/noarch::accelerate-1.7.0-pyhe01879c_0 
+  aiohttp            conda-forge/linux-64::aiohttp-3.8.1-py310h5764c6d_1 
+  aiosignal          conda-forge/noarch::aiosignal-1.3.2-pyhd8ed1ab_0 
+  arrow-cpp          pkgs/main/linux-64::arrow-cpp-19.0.0-h865e1df_1 
+  async-timeout      conda-forge/noarch::async-timeout-4.0.3-pyhd8ed1ab_0 
+  attrs              conda-forge/noarch::attrs-25.3.0-pyh71513ae_0 
+  aws-c-auth         pkgs/main/linux-64::aws-c-auth-0.6.19-h5eee18b_0 
+  aws-c-cal          pkgs/main/linux-64::aws-c-cal-0.5.20-hdbd6064_0 
+  aws-c-common       pkgs/main/linux-64::aws-c-common-0.8.5-h5eee18b_0 
+  aws-c-compression  pkgs/main/linux-64::aws-c-compression-0.2.16-h5eee18b_0 
+  aws-c-event-stream pkgs/main/linux-64::aws-c-event-stream-0.2.15-h6a678d5_0 
+  aws-c-http         pkgs/main/linux-64::aws-c-http-0.6.25-h5eee18b_0 
+  aws-c-io           pkgs/main/linux-64::aws-c-io-0.13.10-h5eee18b_0 
+  aws-c-mqtt         pkgs/main/linux-64::aws-c-mqtt-0.7.13-h5eee18b_0 
+  aws-c-s3           pkgs/main/linux-64::aws-c-s3-0.1.51-hdbd6064_0 
+  aws-c-sdkutils     pkgs/main/linux-64::aws-c-sdkutils-0.1.6-h5eee18b_0 
+  aws-checksums      pkgs/main/linux-64::aws-checksums-0.1.13-h5eee18b_0 
+  aws-crt-cpp        pkgs/main/linux-64::aws-crt-cpp-0.18.16-h6a678d5_0 
+  aws-sdk-cpp        pkgs/main/linux-64::aws-sdk-cpp-1.11.212-hecad206_0 
+  boost-cpp          conda-forge/linux-64::boost-cpp-1.78.0-he72f1d9_0 
+  bottleneck         pkgs/main/linux-64::bottleneck-1.4.2-py310ha9d4c09_0 
+  brotli-python      conda-forge/linux-64::brotli-python-1.0.9-py310hd8f1fbe_7 
+  c-ares             pkgs/main/linux-64::c-ares-1.19.1-h5eee18b_0 
+  certifi            conda-forge/noarch::certifi-2025.4.26-pyhd8ed1ab_0 
+  charset-normalizer conda-forge/noarch::charset-normalizer-2.1.1-pyhd8ed1ab_0 
+  colorama           conda-forge/noarch::colorama-0.4.6-pyhd8ed1ab_1 
+  datasets           conda-forge/noarch::datasets-3.6.0-pyhd8ed1ab_0 
+  deprecated         conda-forge/noarch::deprecated-1.2.18-pyhd8ed1ab_0 
+  dill               conda-forge/noarch::dill-0.3.8-pyhd8ed1ab_0 
+  filelock           conda-forge/noarch::filelock-3.18.0-pyhd8ed1ab_0 
+  frozenlist         pkgs/main/linux-64::frozenlist-1.5.0-py310h5eee18b_0 
+  fsspec             conda-forge/noarch::fsspec-2025.3.0-pyhd8ed1ab_0 
+  gflags             conda-forge/linux-64::gflags-2.2.2-he1b5a44_1004 
+  glog               conda-forge/linux-64::glog-0.5.0-h48cff8f_0 
+  huggingface_hub    conda-forge/noarch::huggingface_hub-0.31.4-pyhd8ed1ab_0 
+  icu                conda-forge/linux-64::icu-70.1-h27087fc_0 
+  idna               conda-forge/noarch::idna-3.10-pyhd8ed1ab_1 
+  importlib-metadata conda-forge/noarch::importlib-metadata-8.6.1-pyha770c72_0 
+  jinja2             conda-forge/noarch::jinja2-3.1.6-pyhd8ed1ab_0 
+  krb5               pkgs/main/linux-64::krb5-1.20.1-h143b758_1 
+  libabseil          pkgs/main/linux-64::libabseil-20240116.2-cxx17_h6a678d5_0 
+  libbrotlicommon    conda-forge/linux-64::libbrotlicommon-1.0.9-h166bdaf_7 
+  libbrotlidec       conda-forge/linux-64::libbrotlidec-1.0.9-h166bdaf_7 
+  libbrotlienc       conda-forge/linux-64::libbrotlienc-1.0.9-h166bdaf_7 
+  libcurl            pkgs/main/linux-64::libcurl-8.12.1-hc9e6f67_0 
+  libedit            pkgs/main/linux-64::libedit-3.1.20230828-h5eee18b_0 
+  libev              conda-forge/linux-64::libev-4.33-h516909a_1 
+  libevent           pkgs/main/linux-64::libevent-2.1.12-hdbd6064_1 
+  libgrpc            pkgs/main/linux-64::libgrpc-1.62.2-h2d74bed_0 
+  libnghttp2         pkgs/main/linux-64::libnghttp2-1.57.0-h2d74bed_0 
+  libprotobuf        pkgs/main/linux-64::libprotobuf-4.25.3-he621ea3_0 
+  libssh2            pkgs/main/linux-64::libssh2-1.11.1-h251f7ec_0 
+  libthrift          pkgs/main/linux-64::libthrift-0.15.0-h1795dd8_2 
+  libtorch           pkgs/main/linux-64::libtorch-2.5.1-cpu_mkl_h75fa98c_102 
+  libuv              pkgs/main/linux-64::libuv-1.48.0-h5eee18b_0 
+  lz4-c              pkgs/main/linux-64::lz4-c-1.9.4-h6a678d5_1 
+  markupsafe         pkgs/main/linux-64::markupsafe-3.0.2-py310h5eee18b_0 
+  mpmath             conda-forge/noarch::mpmath-1.3.0-pyhd8ed1ab_1 
+  multidict          pkgs/main/linux-64::multidict-6.1.0-py310h5eee18b_0 
+  multiprocess       pkgs/main/linux-64::multiprocess-0.70.15-py310h06a4308_0 
+  networkx           conda-forge/noarch::networkx-3.4.2-pyh267e887_2 
+  numexpr            pkgs/main/linux-64::numexpr-2.10.1-py310h3c60e43_0 
+  opentelemetry-api  conda-forge/noarch::opentelemetry-api-1.33.1-pyhd8ed1ab_0 
+  orc                pkgs/main/linux-64::orc-2.0.1-h2d29ad5_0 
+  packaging          conda-forge/noarch::packaging-25.0-pyh29332c3_1 
+  pandas             pkgs/main/linux-64::pandas-2.2.3-py310h6a678d5_0 
+  psutil             pkgs/main/linux-64::psutil-5.9.0-py310h5eee18b_1 
+  pyarrow            pkgs/main/linux-64::pyarrow-19.0.0-py310h6a678d5_1 
+  pysocks            conda-forge/noarch::pysocks-1.7.1-pyha55dd90_7 
+  python-dateutil    conda-forge/noarch::python-dateutil-2.9.0.post0-pyhff2d567_1 
+  python-tzdata      conda-forge/noarch::python-tzdata-2025.2-pyhd8ed1ab_0 
+  python-xxhash      pkgs/main/linux-64::python-xxhash-3.5.0-py310h5eee18b_0 
+  python_abi         conda-forge/linux-64::python_abi-3.10-2_cp310 
+  pytorch            pkgs/main/linux-64::pytorch-2.5.1-cpu_mkl_py310h8bb77d7_102 
+  pytz               conda-forge/noarch::pytz-2025.2-pyhd8ed1ab_0 
+  pyyaml             conda-forge/linux-64::pyyaml-6.0-py310h5764c6d_4 
+  re2                conda-forge/linux-64::re2-2022.04.01-h27087fc_0 
+  regex              pkgs/main/linux-64::regex-2024.11.6-py310h5eee18b_0 
+  requests           conda-forge/noarch::requests-2.32.3-pyhd8ed1ab_1 
+  s2n                pkgs/main/linux-64::s2n-1.3.27-hdbd6064_0 
+  safetensors        pkgs/main/linux-64::safetensors-0.5.3-py310h922eef2_0 
+  six                conda-forge/noarch::six-1.17.0-pyhd8ed1ab_0 
+  sleef              pkgs/main/linux-64::sleef-3.5.1-h5eee18b_2 
+  snappy             pkgs/main/linux-64::snappy-1.2.1-h6a678d5_0 
+  sympy              conda-forge/noarch::sympy-1.14.0-pyh04b8f61_5 
+  tokenizers         pkgs/main/linux-64::tokenizers-0.21.0-py310ha92566c_0 
+  tqdm               conda-forge/noarch::tqdm-4.67.1-pyhd8ed1ab_1 
+  transformers       conda-forge/noarch::transformers-4.52.3-pyhd8ed1ab_0 
+  typing-extensions  conda-forge/noarch::typing-extensions-4.13.2-h0e9735f_0 
+  typing_extensions  conda-forge/noarch::typing_extensions-4.13.2-pyh29332c3_0 
+  urllib3            conda-forge/noarch::urllib3-2.2.1-pyhd8ed1ab_0 
+  utf8proc           pkgs/main/linux-64::utf8proc-2.6.1-h5eee18b_1 
+  wrapt              pkgs/main/linux-64::wrapt-1.17.0-py310h5eee18b_0 
+  xxhash             conda-forge/linux-64::xxhash-0.8.0-h7f98852_3 
+  yaml               conda-forge/linux-64::yaml-0.2.5-h7f98852_2 
+  yarl               conda-forge/linux-64::yarl-1.7.2-py310h5764c6d_2 
+  zipp               conda-forge/noarch::zipp-3.22.0-pyhd8ed1ab_0 
+  zstd               pkgs/main/linux-64::zstd-1.5.6-hc292b87_0 
+
+The following packages will be UPDATED:
+
+  ca-certificates    pkgs/main/linux-64::ca-certificates-2~ --> conda-forge/noarch::ca-certificates-2025.4.26-hbd8a1cb_0 
+
+
+
+Downloading and Extracting Packages
+
+Preparing transaction: ...working... done
+Verifying transaction: ...working... done
+Executing transaction: ...working... done
