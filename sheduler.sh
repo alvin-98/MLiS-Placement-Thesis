@@ -16,7 +16,7 @@ module load PyTorch/2.1.2-foss-2023a-CUDA-12.1.1
 source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profile.d/conda.sh
 conda activate nlp
 conda config --add channels conda-forge
-conda install -y transformers datasets accelerate || \
+conda install -y transformers datasets accelerate
 
 python quick_test.py
 
