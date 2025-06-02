@@ -13,4 +13,4 @@ module load anaconda-uoneasy
 source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profile.d/conda.sh
 conda activate nlp
 
-python HarmBench_qwen_vs_cogito_llm_as_judge.py --max_samples 2
+python HarmBench/HarmBench_qwen_vs_cogito_llm_as_judge.py --max_samples 2
