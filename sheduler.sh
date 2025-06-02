@@ -2,9 +2,9 @@
 
 #SBATCH --partition=shortq
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=4G
-#SBATCH --time=00:05:00
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=80G
+#SBATCH --time=01:00:00
 #SBATCH --output=test_env_%j.out
 
 module purge
@@ -13,4 +13,4 @@ module load anaconda-uoneasy
 source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profile.d/conda.sh
 conda activate nlp
 
-python quick_test.py
+python HarmBench_qwen_vs_cogito_llm_as_judge.py --max_samples 2
