@@ -4,24 +4,13 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4G
-#SBATCH --time=00:10:00
-#SBATCH --output=myscript_%j.out
+#SBATCH --time=00:05:00
+#SBATCH --output=test_env_%j.out
 
 module purge
-module load python-uoneasy
-module load anaconda-uoneasy 
-module load PyTorch/2.1.2-foss-2023a-CUDA-12.1.1
-
+module load anaconda-uoneasy
 
 source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profile.d/conda.sh
 conda activate nlp
-conda config --add channels conda-forge
-conda install -y transformers datasets accelerate
 
 python quick_test.py
-
-
-
-
-
-
