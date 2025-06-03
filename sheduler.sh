@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#SBATCH --partition=shortq
-#SBATCH --ntasks=1
+#SBATCH --partition=ampereq
 #SBATCH --cpus-per-task=16
+#SBATCH --gres=gpu:1
 #SBATCH --mem=80G
-#SBATCH --time=04:00:00
-#SBATCH --output=test_env_%j.out
+#SBATCH --time=10:00:00
+#SBATCH --output=ampereq_%j.out
 
 module purge
 module load anaconda-uoneasy
