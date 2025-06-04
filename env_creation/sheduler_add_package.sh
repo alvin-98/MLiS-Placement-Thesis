@@ -1,10 +1,9 @@
 #!/bin/bash
 
-#SBATCH --partition=ampereq
+#SBATCH --partition=shortq
 #SBATCH --cpus-per-task=16
-#SBATCH --gres=gpu:1
-#SBATCH --mem=80G
-#SBATCH --time=4:00:00
+#SBATCH --mem=19G
+#SBATCH --time=00:10:00
 #SBATCH --output=ampereq_%j.out
 
 module purge
@@ -12,5 +11,4 @@ module load anaconda-uoneasy
 
 source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profile.d/conda.sh
 conda activate nlp
-
-python /gpfs01/home/ppytr13/MLiS-Placement-Thesis-1/HarmBench/HarmBench_qwen_vs_cogito_llm_as_judge.py --do_sample True --temperature 1.5
+pip install accelerate

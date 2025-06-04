@@ -11,7 +11,7 @@ import re
 
 def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=None):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+    model = AutoModelForCausalLM.from_pretrained(model_name,device_map='auto', torch_dtype=torch.float16)
     correct = 0
     total = 0
     
@@ -19,10 +19,10 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
         dataset = dataset.select(range(min(max_samples, len(dataset))))
     
     # system instruction for multiple-choice exam - experiment with different instructions for reasoning models
-    if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B':
+    if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B':
         system_instruction = """You are a knowledgeable assistant taking a multiple-choice exam. Read the multiple‑choice question
         and begin your chain of thought in the format 'the answer is (A, B, C or D) because'. DO NOT INCLUDE BRACKETS AROUND THE LETTER"""
-    elif model_name == 'deepcogito/cogito-v1-preview-llama-8B':
+    elif model_name == "./cogito":
         system_instruction = """You are a knowledgeable assistant taking a multiple-choice exam. Read the multiple‑choice question
         and answer with a single capital letter (A, B, C or D) only. DO NOT INCLUDE BRACKETS AROUND THE LETTER"""
     
@@ -36,9 +36,9 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
         
         inputs = tokenizer(prompt, return_tensors='pt').to(device)
         with torch.no_grad():
-            if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B': #reasoning model breaks due to being unable to think
+            if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B': #reasoning model breaks due to being unable to think
                 outputs = model.generate(**inputs, max_new_tokens=50, do_sample=False, pad_token_id=tokenizer.eos_token_id)
-            elif model_name == 'deepcogito/cogito-v1-preview-llama-8B':
+            elif model_name == "./cogito":
                 outputs = model.generate(**inputs, max_new_tokens=3, do_sample=False, pad_token_id=tokenizer.eos_token_id)
         gen = tokenizer.decode(outputs[0][inputs['input_ids'].size(-1):], skip_special_tokens=True)
                       
@@ -47,7 +47,7 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
             total += 1
             continue
         
-        if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B':  
+        if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B':  
             if 'Answer:' in gen: #if enough tokens are generated to include explicit answer - will explore more when on full HPC
                 match = re.search(r"Answer:\s*(.*)", gen, re.IGNORECASE)
                 answer_part = match.group(1).strip() if match else ""
@@ -58,7 +58,7 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
                 pred = match.group(1) if match else None
 
             
-        elif model_name == 'deepcogito/cogito-v1-preview-llama-8B':  
+        elif model_name == "./cogito":  
             pred = gen.strip().split()[0].strip("()")
         
         # normalize true label to letter (index -> letter)
@@ -70,9 +70,9 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
         
 
         
-        if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B':
+        if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B':
             qwen_df.loc[len(qwen_df)] = [prompt,gen, pred, true]
-        elif model_name == 'deepcogito/cogito-v1-preview-llama-8B':
+        elif model_name == "./cogito":
             cogito_df.loc[len(cogito_df)] = [prompt,gen, pred, true]
     
     return correct, total
@@ -83,13 +83,12 @@ def main():
     qwen_df = pd.DataFrame(columns=['prompt', 'raw prediction','submitted prediction', 'true'])
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cogito', default='deepcogito/cogito-v1-preview-llama-8B')
-    parser.add_argument('--qwen', default='deepseek-ai/DeepSeek-R1-Distill-Qwen-7B')
+    parser.add_argument('--cogito', default="./cogito")
+    parser.add_argument('--qwen', default='deepseek-ai/DeepSeek-R1-Distill-Qwen-32B')
     parser.add_argument('--max_samples', type=int, default=None,
                         help='Max number of samples to evaluate')
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     args = parser.parse_args()
-    
     print(f"Loading MMLU validation split...")
     dataset = load_dataset("cais/mmlu", 'all', split="validation")
     print(f"Loaded {len(dataset)} examples")
