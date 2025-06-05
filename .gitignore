@@ -5,6 +5,7 @@ data/
 cogito/
 *.safetensors
 cogito/
+deepseek/
 
 *.safetensors
 *.bin
