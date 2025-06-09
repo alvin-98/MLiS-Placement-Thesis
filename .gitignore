@@ -6,7 +6,7 @@ cogito/
 *.safetensors
 cogito/
 deepseek/
-
+outs/
 *.safetensors
 *.bin
 *.pt

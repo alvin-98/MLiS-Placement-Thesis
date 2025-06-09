@@ -19,7 +19,7 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
         dataset = dataset.select(range(min(max_samples, len(dataset))))
     
     # system instruction for multiple-choice exam - experiment with different instructions for reasoning models
-    if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B':
+    if model_name == './deepseek':
         system_instruction = """You are a knowledgeable assistant taking a multiple-choice exam. Read the multiple‑choice question
         and begin your chain of thought in the format 'the answer is (A, B, C or D) because'. DO NOT INCLUDE BRACKETS AROUND THE LETTER"""
     elif model_name == "./cogito":
@@ -36,8 +36,8 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
         
         inputs = tokenizer(prompt, return_tensors='pt').to(device)
         with torch.no_grad():
-            if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B': #reasoning model breaks due to being unable to think
-                outputs = model.generate(**inputs, max_new_tokens=50, do_sample=False, pad_token_id=tokenizer.eos_token_id)
+            if model_name == './deepseek': #reasoning model breaks due to being unable to think
+                outputs = model.generate(**inputs, max_new_tokens=10, do_sample=False, pad_token_id=tokenizer.eos_token_id)
             elif model_name == "./cogito":
                 outputs = model.generate(**inputs, max_new_tokens=3, do_sample=False, pad_token_id=tokenizer.eos_token_id)
         gen = tokenizer.decode(outputs[0][inputs['input_ids'].size(-1):], skip_special_tokens=True)
@@ -47,7 +47,7 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
             total += 1
             continue
         
-        if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B':  
+        if model_name == './deepseek':  
             if 'Answer:' in gen: #if enough tokens are generated to include explicit answer - will explore more when on full HPC
                 match = re.search(r"Answer:\s*(.*)", gen, re.IGNORECASE)
                 answer_part = match.group(1).strip() if match else ""
@@ -70,7 +70,7 @@ def evaluate_model(model_name, dataset, device, cogito_df, qwen_df, max_samples=
         
 
         
-        if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-32B':
+        if model_name == './deepseek':
             qwen_df.loc[len(qwen_df)] = [prompt,gen, pred, true]
         elif model_name == "./cogito":
             cogito_df.loc[len(cogito_df)] = [prompt,gen, pred, true]
@@ -84,7 +84,7 @@ def main():
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--cogito', default="./cogito")
-    parser.add_argument('--qwen', default='deepseek-ai/DeepSeek-R1-Distill-Qwen-32B')
+    parser.add_argument('--qwen', default='./deepseek')
     parser.add_argument('--max_samples', type=int, default=None,
                         help='Max number of samples to evaluate')
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
@@ -98,8 +98,8 @@ def main():
         correct, total = evaluate_model(model_name, dataset, args.device, cogito_df, qwen_df, args.max_samples)
         print(f"{label} accuracy: {correct}/{total} = {correct/total:.4f}")
     
-    cogito_df.to_csv('Cogito_MMLU.csv', index=True)
-    qwen_df.to_csv('Qwen_MMLU.csv', index=True)
+    cogito_df.to_csv('MMLU/Cogito_MMLU.csv', index=True)
+    qwen_df.to_csv('MMLU/Qwen_MMLU.csv', index=True)
 
 if __name__ == '__main__':
     main()
