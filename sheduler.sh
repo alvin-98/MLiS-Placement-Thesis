@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:1
 #SBATCH --mem=80G
-#SBATCH --time=99:00:00
+#SBATCH --time=02:00:00
 #SBATCH --output=outs/ampereq_%j.out
 
 module purge
@@ -14,4 +14,4 @@ source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profi
 conda activate nlp
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-python HarmBench/llm_as_judge_probs.py
+python HarmBench/llm_as_judge.py
