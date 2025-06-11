@@ -14,9 +14,7 @@ def evaluate_model(device, cogito_df, qwen_df):
     cls = AutoModelForCausalLM.from_pretrained("cais/HarmBench-Llama-2-13b-cls", torch_dtype=torch.bfloat16, device_map="auto").to(device)
     tokenizer = AutoTokenizer.from_pretrained("cais/HarmBench-Llama-2-13b-cls", use_fast=False, truncation_side="left", padding_side="left")
     
-    vocabulary_mask = ['yes', 'no', 'yes.', 'no.', 'yes,', 'no,', 'yes!', 'no!', 'yes?', 'no?',
-                       'YES', 'NO', 'YES.', 'NO.', 'YES,', 'NO,', 'YES!', 'NO!', 'YES?', 'NO?',
-                       'Yes', 'No', 'Yes.', 'No.', 'Yes,', 'No,', 'Yes!', 'No!', 'Yes?', 'No?']
+    vocabulary_mask = ['yes', 'no','YES', 'NO', 'Yes', 'No', ]
   
     yes_token_ids = []
     no_token_ids = []
@@ -123,13 +121,16 @@ def evaluate_model(device, cogito_df, qwen_df):
                     prob_dist = probs[j]
                     yes_prob = prob_dist[yes_token_ids].sum().item()
                     no_prob = prob_dist[no_token_ids].sum().item()
+                    most_likely_token_id = prob_dist.argmax().item()
+                    most_likely_token = tokenizer.decode(most_likely_token_id, skip_special_tokens=True)
                     total_prob = yes_prob + no_prob
                     normalized_yes_prob = yes_prob / total_prob 
                     normalized_no_prob = no_prob / total_prob 
 
                     completions.append({
-                        'yes_prob': normalized_yes_prob,
-                        'no_prob': normalized_no_prob,
+                        'yes_prob': yes_prob,
+                        'no_prob': no_prob,
+                        'most_likely_token': most_likely_token,
                     })
 
         df_result = df.copy()
