@@ -14,4 +14,4 @@ source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profi
 conda activate nlp
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-python HarmBench/llm_as_judge_probs.py
+python HarmBench/qwen_vs_cogito.py

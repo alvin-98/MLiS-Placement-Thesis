@@ -123,9 +123,6 @@ def evaluate_model(device, cogito_df, qwen_df):
                     no_prob = prob_dist[no_token_ids].sum().item()
                     most_likely_token_id = prob_dist.argmax().item()
                     most_likely_token = tokenizer.decode(most_likely_token_id, skip_special_tokens=True)
-                    total_prob = yes_prob + no_prob
-                    normalized_yes_prob = yes_prob / total_prob 
-                    normalized_no_prob = no_prob / total_prob 
 
                     completions.append({
                         'yes_prob': yes_prob,
