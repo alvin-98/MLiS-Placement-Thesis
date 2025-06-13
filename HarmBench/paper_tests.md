@@ -36,7 +36,7 @@ TAP: https://arxiv.org/pdf/2312.02119
 
 ## Harm bench experiments
 
-- temperature decoding: does harmfulness probability increase with increasing temp, does variation in harmfulness of a prompt increase with different prompt
+- temperature decoding: does harmfulness probability increase with increasing temp, does variation in harmfulness of a prompt increase with different prompt (how do i calculate this? standadard deviation on harmfulness of a given prompt? take average across temperatures plot for change in temp)
 - implement one of above attack methods to reproduce results in harm bench
 
 

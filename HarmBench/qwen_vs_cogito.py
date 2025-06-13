@@ -24,13 +24,13 @@ def generate_completions(model_name, dataset, device, cogito_df, qwen_df, do_sam
         prompts.append(prompt)
         metadata.append((ex['category'], ex['prompt']))
 
-    for i in tqdm(range(0, len(prompts), batch_size), desc=f"Evaluating {model_name}"):
+    for i in tqdm(range(0, len(prompts), batch_size), desc=f"{model_name} Generation Progress"):
         batch_prompts = prompts[i:i+batch_size]
         batch_metadata = metadata[i:i+batch_size]
 
         inputs = tokenizer(batch_prompts, return_tensors='pt', padding=True, truncation=True).to(device)
 
-        for _ in range(5):  # 5 completions per prompt
+        for _ in range(5):  
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
@@ -72,7 +72,7 @@ def main():
     print(f"Loaded {len(dataset)} examples")
     
     for model_name, label in [(args.cogito, 'Cogito'), (args.qwen, 'Qwen')]:
-        print(f"\nEvaluating {label} model: {model_name}")
+        print(f"\nGenerating with {label} model: {model_name}")
         generate_completions(model_name, dataset, args.device, cogito_df, qwen_df, args.do_sample, args.temperature, args.max_samples, args.batch_size)
         
     

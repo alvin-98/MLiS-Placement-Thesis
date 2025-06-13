@@ -29,7 +29,6 @@ def evaluate_model(device, cogito_df, qwen_df, batch_size):
         if token in no_token_ids:
             yes_token_ids.remove(token)
             no_token_ids.remove(token)
-            print(f"Token ID {token} is present in both 'yes' and 'no' token lists, which is not allowed.")
         
            
     mask = torch.zeros(tokenizer.vocab_size, dtype=torch.bool)
@@ -151,12 +150,12 @@ def main():
     args = parser.parse_args()
     
     print(f"Evaluating models on device: {args.device}")
-    cogito_df = pd.read_csv(f'HarmBench/Cogito_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}.csv')
-    qwen_df = pd.read_csv(f'HarmBench/Qwen_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}.csv') 
+    cogito_df = pd.read_csv('timeseriesdatagen/safe_data.csv')
+    qwen_df = pd.read_csv('timeseriesdatagen/unsafe_data.csv') 
 
     cogito_eval_df, qwen_eval_df = evaluate_model(args.device, cogito_df, qwen_df,args.batch_size) 
-    cogito_eval_df.to_csv(f'HarmBench/Cogito_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}_probs.csv', index=False)
-    qwen_eval_df.to_csv(f'HarmBench/Qwen_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}_probs.csv', index=False)     
+    cogito_eval_df.to_csv('timeseriesdatagen/safe_data_eval.csv', index=False)
+    qwen_eval_df.to_csv('timeseriesdatagen/unsafe_data_eval.csv', index=False)
         
 if __name__ == '__main__':
     main()
