@@ -44,7 +44,7 @@ def generate_completions(model_name, dataset,dataset_name, device, df, do_sample
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
-                    max_new_tokens=12,
+                    max_new_tokens=120,
                     do_sample=do_sample,
                     temperature=temperature,
                     pad_token_id=tokenizer.eos_token_id
@@ -55,7 +55,7 @@ def generate_completions(model_name, dataset,dataset_name, device, df, do_sample
             for j, gen in enumerate(decoded):
                 prompt_number = i + j + 1
                 category, orig_prompt = batch_metadata[j]
-                df.loc[len(df)] = [prompt_number, category, orig_prompt, gen]
+                df.loc[len(df)] = [model_name,dataset_name,temperature,prompt_number, category, orig_prompt, gen]
                 
     return df
 
@@ -63,16 +63,14 @@ def generate_completions(model_name, dataset,dataset_name, device, df, do_sample
 
 
 def main():
-    unsafe_df = pd.DataFrame(columns=['prompt_number','category','prompt','LLM_responce'])
-    safe_df = pd.DataFrame(columns=['prompt_number','category','prompt','LLM_responce',])
+    unsafe_df = pd.DataFrame(columns=['model_name','dataset','temperature','prompt_number','category','prompt','LLM_responce'])
+    safe_df = pd.DataFrame(columns=['model_name','dataset','temperature','prompt_number','category','prompt','LLM_responce'])
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cogito', default='deepcogito/cogito-v1-preview-llama-8B')
-    parser.add_argument('--qwen', default='deepseek-ai/DeepSeek-R1-Distill-Qwen-7B')
-    parser.add_argument('--max_samples', type=int, default=1)
+    parser.add_argument('--max_samples', type=int, default=None)
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     parser.add_argument('--do_sample', default=True)
-    parser.add_argument('--temperature', type=float, default=1.1)
+    parser.add_argument('--temperature', type=float, default=1.2)
     parser.add_argument('--batch_size', type=int, default=4)
     args = parser.parse_args()
     
@@ -91,7 +89,7 @@ def main():
                 safe_dataset.append(message["content"])
                 break 
     print(f"Loaded {len(safe_dataset)} user prompts from the safe dataset")
-    model_name = 'deepcogito/cogito-v1-preview-llama-8B'
+    model_name = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
     for dataset in [unsafe_dataset, safe_dataset]:
         if dataset == unsafe_dataset:
             print(f"Generating completions for unsafe dataset with {model_name}...")

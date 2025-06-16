@@ -46,16 +46,16 @@ def generate_completions(model_name, dataset, device, cogito_df, qwen_df, do_sam
                 prompt_number = i + j + 1
                 category, orig_prompt = batch_metadata[j]
                 if model_name == 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B':
-                    qwen_df.loc[len(qwen_df)] = [prompt_number, category, orig_prompt, gen]
+                    qwen_df.loc[len(qwen_df)] = [model_name,temperature, prompt_number, category, orig_prompt, gen]
                 elif model_name == 'deepcogito/cogito-v1-preview-llama-8B':
-                    cogito_df.loc[len(cogito_df)] = [prompt_number, category, orig_prompt, gen]
+                    cogito_df.loc[len(cogito_df)] = [model_name,temperature, prompt_number, category, orig_prompt, gen]
 
     
 
 
 def main():
-    cogito_df = pd.DataFrame(columns=['prompt_number','category','prompt','LLM_responce'])
-    qwen_df = pd.DataFrame(columns=['prompt_number','category','prompt','LLM_responce',])
+    cogito_df = pd.DataFrame(columns=['model_name','temperature','prompt_number','category','prompt','LLM_responce'])
+    qwen_df = pd.DataFrame(columns=['model_name','temperature','prompt_number','category','prompt','LLM_responce'])
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--cogito', default='deepcogito/cogito-v1-preview-llama-8B')
