@@ -1,0 +1,3 @@
+[submodule "pipeline/MonkeyOCR"]
+	path = pipeline/MonkeyOCR
+	url = https://github.com/Yuliang-Liu/MonkeyOCR.git
