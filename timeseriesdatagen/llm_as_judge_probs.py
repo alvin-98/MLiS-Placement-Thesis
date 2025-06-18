@@ -150,12 +150,13 @@ def main():
     args = parser.parse_args()
     
     print(f"Evaluating models on device: {args.device}")
-    cogito_df = pd.read_csv('timeseriesdatagen/safe_data.csv')
-    qwen_df = pd.read_csv('timeseriesdatagen/unsafe_data.csv') 
+    #cogito_df = pd.read_csv('timeseriesdatagen/safe_data.csv')
+    cogito_df = pd.read_csv('timeseriesdatagen/safe_data_full_tokens.csv',)
+    qwen_df = pd.read_csv('timeseriesdatagen/safe_data.csv') 
 
     cogito_eval_df, qwen_eval_df = evaluate_model(args.device, cogito_df, qwen_df,args.batch_size) 
-    cogito_eval_df.to_csv('timeseriesdatagen/safe_data_eval.csv', index=False)
-    qwen_eval_df.to_csv('timeseriesdatagen/unsafe_data_eval.csv', index=False)
+    cogito_eval_df.to_csv('timeseriesdatagen/safe_data_eval_full_tokens.csv', index=False)
+    qwen_eval_df.to_csv('timeseriesdatagen/safe_data_eval.csv', index=False)
         
 if __name__ == '__main__':
     main()

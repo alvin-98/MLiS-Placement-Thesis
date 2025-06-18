@@ -44,7 +44,7 @@ def generate_completions(model_name, dataset,dataset_name, device, df, do_sample
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
-                    max_new_tokens=120,
+                    max_new_tokens=512,
                     do_sample=do_sample,
                     temperature=temperature,
                     pad_token_id=tokenizer.eos_token_id
@@ -90,7 +90,8 @@ def main():
                 break 
     print(f"Loaded {len(safe_dataset)} user prompts from the safe dataset")
     model_name = 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B'
-    for dataset in [unsafe_dataset, safe_dataset]:
+    #for dataset in [unsafe_dataset, safe_dataset]:
+    for dataset in [safe_dataset]:
         if dataset == unsafe_dataset:
             print(f"Generating completions for unsafe dataset with {model_name}...")
             dataset_name = 'unsafe'
@@ -101,8 +102,8 @@ def main():
             safe_df = generate_completions(model_name, dataset,dataset_name, args.device, safe_df, args.do_sample, args.temperature, args.max_samples, args.batch_size)
         
     
-    safe_df.to_csv('timeseriesdatagen/safe_data.csv', index=True)
-    unsafe_df.to_csv('timeseriesdatagen/unsafe_data.csv', index=True)
+    safe_df.to_csv('timeseriesdatagen/safe_data_full_tokens.csv', index=True)
+    #unsafe_df.to_csv('timeseriesdatagen/unsafe_data.csv', index=True)
 
 if __name__ == '__main__':
     main()

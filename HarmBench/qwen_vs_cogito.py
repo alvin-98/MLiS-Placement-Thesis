@@ -64,7 +64,7 @@ def main():
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     parser.add_argument('--do_sample', default=True)
     parser.add_argument('--temperature', type=float, default=1.1)
-    parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--batch_size', type=int, default=2)
     args = parser.parse_args()
     
     print(f"Loading HarmBench...")
