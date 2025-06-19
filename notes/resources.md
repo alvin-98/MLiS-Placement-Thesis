@@ -16,4 +16,4 @@
 
 4. A Thorough Examination of Decoding Methods in the Era of LLMs
     - 2024
-    - https://arxiv.org/abs/2402.06925
+    - https://arxiv.org/abs/2402.06925 
