@@ -20,7 +20,7 @@ for span in soup.find_all("span"):
     new_value = round(random.uniform(0, 25), 2)
     span.string = f"€{new_value:.2f}"
 
-# Output updated HTML as string
+
 updated_html = str(soup)
 
 print(updated_html)
@@ -45,13 +45,13 @@ def extract_formula(df, qc, weight, day_night):
     return total_fee
 
     
-print(extract_formula(df, 1, 10, 'day'))  # Example usage
-print(extract_formula(df, 2, 5, 'night'))  # Example usage
+print(extract_formula(df, 1, 10, 'day'))  
+print(extract_formula(df, 2, 5, 'night'))  
 
 
 # %%
 from transformers import AutoModelForCausalLM, AutoTokenizer
-model_name = "codellama/CodeLlama-7b-Python-hf"  # Replace with your model name 
+model_name = "codellama/CodeLlama-7b-Python-hf"  
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
