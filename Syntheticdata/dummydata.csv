@@ -1,0 +1,25 @@
+,func_def,func_call_1,func_call_2,ground_truth_1,ground_truth_2,output1,output2,output3
+0,"def calculate_total_fee(qc_value: float, tonnage: float, time_period: str = 'day') -> float:
+    fees = {
+        0.0: {'day': 5.00, 'night': 4.00},
+        1.0: {'day': 10.00, 'night': 8.00},
+        2.0: {'day': 15.00, 'night': 12.00},
+    }
+    if qc_value not in fees:
+        raise ValueError(f""QC value {qc_value} not found."")
+    if time_period not in ['day', 'night']:
+        raise ValueError(""time_period must be 'day' or 'night'"")
+    return fees[qc_value][time_period] * tonnage","calculate_total_fee(1, 2, 'night')","calculate_total_fee(2, 4, 'day')",16.0,163.0,16.0,60.0,False
+1,"def calculate_total_fee(qc_value: float, tonnage: float, time_period: str = 'day') -> float:
+    fees = {
+        0.0: {'day': 8.00, 'night': 43.00},
+        1.0: {'day': 20.00, 'night': 81.00},
+        2.0: {'day': 25.00, 'night': 22.00},
+    }
+
+    if qc_value not in fees:
+        raise ValueError(f""QC value {qc_value} not found."")
+    if time_period not in ['day', 'night']:
+        raise ValueError(""time_period must be 'day' or 'night'"")
+
+    return fees[qc_value][time_period] * tonnage","calculate_total_fee(1, 2, 'night')","calculate_total_fee(2, 4, 'day')",162.0,100.0,162.0,100.0,True
