@@ -11,8 +11,8 @@ import copy
 
 def evaluate_model(device, batch_size,dataset,max_iterations,n_runs): 
     # initial model setup 
-    defence_model = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', torch_dtype=torch.bfloat16, device_map="auto").to(device)
-    defence_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', use_fast=False)
+    defence_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-chat-hf', torch_dtype=torch.bfloat16, device_map="auto").to(device)
+    defence_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', use_fast=False)
     attack_model = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', torch_dtype=torch.bfloat16, device_map="auto")
     attack_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', use_fast=False)
     judge_model = AutoModelForCausalLM.from_pretrained("cais/HarmBench-Llama-2-13b-cls", torch_dtype=torch.bfloat16, device_map="auto")
@@ -309,13 +309,13 @@ def main():
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     parser.add_argument('--temperature', type=float, default=1.1)
     parser.add_argument('--batch_size', type=int, default=4)
-    parser.add_argument('--max_iterations', type=int, default=5)  # Maximum iterations for the attack
-    parser.add_argument('--n_runs', type = int, default=2)
+    parser.add_argument('--max_iterations', type=int, default=20)  # Maximum iterations for the attack
+    parser.add_argument('--n_runs', type = int, default=200)
     args = parser.parse_args()
     dataset = load_dataset("walledai/HarmBench",'standard', split="train")
     print(f"Evaluating models on device: {args.device}")
     df = evaluate_model(args.device,args.batch_size,dataset,args.max_iterations,args.n_runs) 
-    df.to_csv(f'PAIR/results.csv', index=True)
+    df.to_csv(f'PAIR/results_L2.csv', index=True)
     
 if __name__ == '__main__':
     main()

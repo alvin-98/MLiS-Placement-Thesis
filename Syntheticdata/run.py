@@ -4,10 +4,16 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import random
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import re
 model_name = "codellama/CodeLlama-7b-Python-hf"  
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
-data=pd.read_csv('sampledata.csv')
+def extract_function_code(text):
+    'because its difficult to put an exact token limit'
+    match = re.search(r'def [\s\S]+?(?=<\|[^|]+?\|>|$)', text)
+    return match.group(0) if match else None
+
+data=pd.read_csv('Syntheticdata/sampledata.csv')
 
 sys_prompt = '''You are a helpful Python programming assistant. You are given an HTML document that contains a pricing table. Your job is to write clean, readable Python code that defines a function to compute a total fee based on inputs like 'QC', weight in tonnes, and whether it's 'day' or 'night'.
 
@@ -62,8 +68,9 @@ Write a function `calculate_total_fee(qc_value: float, tonnage: float, time_peri
 
 Only output the function. Do not parse the HTML at runtime.
 '''
+llm_func=[]
 for i in range(data.shape[0]):
-    html=data['html'][0] 
+    html=data['html'][i] 
     full_prompt = f'''
     <|system|>
     {sys_prompt}
@@ -75,7 +82,9 @@ for i in range(data.shape[0]):
     inputs = tokenizer(full_prompt, return_tensors="pt")
     outputs = model.generate(**inputs, max_new_tokens=500)
     formula = tokenizer.batch_decode(outputs[:, inputs['input_ids'].size(1):], skip_special_tokens=True)
-    print(formula)
+    llm_func.append(extract_function_code(formula[0]))
+data['function']=llm_func
+data.to_csv('Syntheticdata/llmdata.csv')
  
 
 
