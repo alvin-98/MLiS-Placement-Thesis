@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:1
 #SBATCH --mem=80G
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 #SBATCH --output=outs/ampereq_%j.out
 
 module purge

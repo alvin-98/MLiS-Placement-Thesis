@@ -13,8 +13,9 @@ def evaluate_model(device, batch_size,dataset,max_iterations,n_runs):
     # initial model setup 
     defence_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-chat-hf', torch_dtype=torch.bfloat16, device_map="auto").to(device)
     defence_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', use_fast=False)
-    attack_model = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', torch_dtype=torch.bfloat16, device_map="auto")
-    attack_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', use_fast=False)
+    attack_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-chat-hf', torch_dtype=torch.bfloat16, device_map="auto")
+    attack_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', use_fast=False)
+    print(attack_tokenizer.chat_template)
     judge_model = AutoModelForCausalLM.from_pretrained("cais/HarmBench-Llama-2-13b-cls", torch_dtype=torch.bfloat16, device_map="auto")
     judge_tokenizer = AutoTokenizer.from_pretrained("cais/HarmBench-Llama-2-13b-cls", use_fast=False)
     defence_tokenizer.pad_token = defence_tokenizer.eos_token

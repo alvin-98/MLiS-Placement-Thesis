@@ -3,6 +3,7 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 import random
+import re
 
 # %%
 html = """
@@ -48,8 +49,73 @@ for html in dataset:
     #obvious issue with this method = doesnt cover edge cases unless specifically designed to
     dataframe_dataset.loc[i] = [html,check1,check2]
     i+=1
+#%%
+html2 = '''<html>
+<table><thead><tr><th>Charging Basis (€)</th><th>Detail</th><th>Per 15 minutes or part thereof except for Long Term Remote which is per day or part thereof</th></tr></thead><tbody><tr><td rowspan="2">Standard Charge per Aircraft/Stand type</td><td>Wide Remote</td><td>9.60</td></tr><tr><td>Narrow Remote</td><td>7.70</td></tr><tr><td></td><td>Long Term Remote*</td><td>180.00</td></tr><tr><td></td><td>Light Aircraft Parking (LAP)</td><td>2.65</td></tr><tr><th colspan="3"><strong>Aircraft parking for extended periods in WAP attract the following surcharges:</strong></th></tr><tr><th>Aircraft Parking Duration</th><th></th><th>Parking Surcharge</th></tr><tr><th>Charging Basis</th><th></th><th>Per 15 minutes or part thereof</th></tr><tr><td>48 hours up to 72 hours (including night-time)</td><td></td><td>Standard rate</td></tr><tr><td>72 hours and over (including night-time)</td><td></td><td>Standard rate +200%</td></tr></tbody></table>
+</html>'''
+soup2 = BeautifulSoup(html2, "html.parser")
+dataset2=[]
+for i in range(dataset_size):
+    for td in soup2.find_all("td"):
+        text = td.get_text(strip=True).replace('€', '').replace(',', '.')
+        try:
+            # If the text is a number (e.g., "180.00"), replace it
+            float(text)
+            new_value = round(random.uniform(0, 25), 2)
+            td.string = f"€{new_value:.2f}"
+        except ValueError:
+        # If it's not a number (e.g., "Long Term Remote*"), don't touch it
+            continue
+    updated_html = str(soup2)
+    dataset2.append(updated_html)
 
-print(dataframe_dataset)
-print('\n full def \n sample element')
+
+#%%
+# %%
+def compute_parking_charge(parking_datatable, stand_type, total_duration_minutes):
+
+    def normalize(s):
+        return str(s).strip().lower().replace('*', '').replace('(', '').replace(')', '')
+
+    target = normalize(stand_type)
+    df = parking_datatable.copy()
+    df['Detail'] = df['Detail'].astype(str).apply(normalize)
+
+    match_row = df[df['Detail'] == target]
+    if match_row.empty:
+        raise ValueError(f"No matching stand type found: {stand_type}")
+
+    rate_col_candidates = [
+        col for col in df.columns if "per 15" in col.lower() or "per day" in col.lower()
+    ]
+    if not rate_col_candidates:
+        raise ValueError("No valid rate column found.")
+
+    rate_col = rate_col_candidates[0]
+    rate_str = str(match_row.iloc[0][rate_col])
+
+    try:
+        rate = float(rate_str.replace("€", "").replace(",", "."))
+    except ValueError:
+        raise ValueError(f"Could not parse rate value: {rate_str}")
+
+    if 'long term remote' in target:
+        return rate * ((total_duration_minutes + 1439) // 1440)  # per day
+    else:
+        return rate * ((total_duration_minutes + 14) // 15)  # per 15 mins
+
+#%%
+    
+for html2 in dataset2:    
+    i+=1
+    df2 = pd.read_html(html2)
+    check1=compute_parking_charge(df2[0],'long term remote*',100)
+    check2=compute_parking_charge(df2[0],'Light Aircraft Parking (LAP)',1000)
+    dataframe_dataset.loc[i] = [html2,check1,check2]
+
+print(dataframe_dataset.loc[6])
+print(dataframe_dataset.loc[7])
 dataframe_dataset.to_csv('Syntheticdata/sampledata.csv')
 
+
+# %%

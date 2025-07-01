@@ -15,21 +15,29 @@ def extract_function_code(text):
 
 data=pd.read_csv('Syntheticdata/sampledata.csv')
 
-sys_prompt = '''You are a helpful Python programming assistant. You are given an HTML document that contains a pricing table. Your job is to write clean, readable Python code that defines a function to compute a total fee based on inputs like 'QC', weight in tonnes, and whether it's 'day' or 'night'.
+sys_prompt = '''sys_prompt = 
+You are a helpful Python programming assistant. You are given an HTML document containing one or more pricing tables. Your job is to write clean, readable Python code that defines a function to compute a cost or fee based on user input.
 
-The HTML may contain <th colspan>, <br> tags, currency symbols, and style attributes. You should mentally interpret the table and output a pure Python function that hardcodes the rates in a dictionary. Do not parse the HTML in code. Just read it and write a clean function.'''
+Important instructions:
+- Do not parse or manipulate the HTML in the function. Just read and interpret it yourself.
+- Extract and hardcode any relevant rates or rules from the table(s).
+- Use clear variable names and simple logic.
+- You may use dictionaries, conditionals, or any clean structure to represent the logic — choose the most appropriate form.
+- If input validation is needed (e.g. invalid category or time), raise a `ValueError` with a helpful message.
+- The function should be self-contained and return the final cost/fee as a float.
+'''
 
-few_shot = '''Below is an HTML table containing fee rates based on QC Set values. Write a Python function that:
 
-- Matches the exact QC Set value (no interpolation),
-- Takes as input: QC Set, tonnage, and time period ('day' or 'night'),
-- Returns the total fee using the appropriate per-tonne rate.
+few_shot = '''
+Example 1:
 
----
+Task:
+You are given an HTML table with fee rates depending on aircraft noise QC values. Your function should:
+- Match the QC Set value exactly (no interpolation),
+- Take `qc_value`, `tonnage`, and `time_period` ('day' or 'night') as arguments,
+- Return the total cost using the corresponding per-tonne rate.
 
-Example:
-
-HTML Table:
+HTML:
 <table>
   <thead>
     <tr><th>QC Set</th><th>Day Rate</th><th>Night Rate</th></tr>
@@ -44,30 +52,59 @@ HTML Table:
 Python Function:
 ```python
 def calculate_total_fee(qc_value: float, tonnage: float, time_period: str = 'day') -> float:
-    fees = {
+    rates = {
         0.0: {'day': 5.00, 'night': 4.00},
         1.0: {'day': 10.00, 'night': 8.00},
         2.0: {'day': 15.00, 'night': 12.00},
     }
 
-    if qc_value not in fees:
+    if qc_value not in rates:
         raise ValueError(f"QC value {qc_value} not found.")
     if time_period not in ['day', 'night']:
         raise ValueError("time_period must be 'day' or 'night'")
 
-    return fees[qc_value][time_period] * tonnage'''
+    return rates[qc_value][time_period] * tonnage
+
+Example 2:
+    
+Task:
+Given an HTML table with time-based parking charges, write a function that:
+- Takes `hours_parked` as input,
+- Applies the correct flat fee or hourly rate based on duration band.
+
+HTML:
+<table>
+  <thead><tr><th>Duration</th><th>Rate</th></tr></thead>
+  <tbody>
+    <tr><td>0–1 hours</td><td>€5</td></tr>
+    <tr><td>1–3 hours</td><td>€10</td></tr>
+    <tr><td>Over 3 hours</td><td>€15 + €2 per additional hour</td></tr>
+  </tbody>
+</table>
+
+Python Function:
+```python
+def calculate_total_fee(hours_parked: float) -> float:
+    if hours_parked <= 1:
+        return 5
+    elif hours_parked <= 3:
+        return 10
+    else:
+        extra_hours = hours_parked - 3
+        return 15 + 2 * extra_hours
+'''
 
 user_prompt = '''
-Below is an HTML table containing noise charge data.
+Below is an HTML table describing a cost or pricing scheme.
 
-Write a function `calculate_total_fee(qc_value: float, tonnage: float, time_period: str)` that:
-- Matches the QC Set value exactly (do not interpolate),
-- Multiplies the corresponding per-tonne fee by the tonnage,
-- Uses the correct rate for 'day' or 'night',
-- Returns the total fee.
+Write a Python function `calculate_total_fee` that:
+- Computes and returns the total cost or fee based on appropriate inputs,
+- Uses logic derived from the table(s),
+- Encodes all relevant constants/rates directly in the code.
 
-Only output the function. Do not parse the HTML at runtime.
+Only output the function. Do not parse the HTML at runtime. Avoid unnecessary complexity.
 '''
+
 llm_func=[]
 for i in range(data.shape[0]):
     html=data['html'][i] 
@@ -84,7 +121,7 @@ for i in range(data.shape[0]):
     formula = tokenizer.batch_decode(outputs[:, inputs['input_ids'].size(1):], skip_special_tokens=True)
     llm_func.append(extract_function_code(formula[0]))
 data['function']=llm_func
-data.to_csv('Syntheticdata/llmdata.csv')
+data.to_csv('Syntheticdata/llmdata_newsample.csv')
  
 
 
