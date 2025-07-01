@@ -32,7 +32,7 @@ def extract_function_arguments(function_str):
             return args
     return None
 # %%
-data=pd.read_csv('./sampledata.csv')
+data=pd.read_csv('./sampledata_alt.csv')
 # %%
 # function to complete
 def calculate_total_fee(qc_value: float, tonnage: float, time_period: str = 'day') -> float:
@@ -145,5 +145,5 @@ data = data.iloc[:len(completions)].reset_index(drop=True)
 data['function']=llm_funcs
 data['completion']=completions
 data['function_vars'] = str(func_vars)
-data.to_csv('./llmdata.csv', index=False)
+data.to_csv('./llmdata_alt.csv', index=False)
 # %%

@@ -74,6 +74,12 @@ $$
 
 Generally, a given augementation will only work for a particular class of documents, e.g. for documents with different structures, or for different charges it may not be satsify the requirement that the requirement above.
 
+Generalising even more, we do not need the functions to produce the same values, but just to be related by some known transformation. In this case, we can write the requirement as,
+$$
+f'_{i,c}(x_i', v_c) = h \circ f_{i,c}(x_i, v_c)
+$$
+where $h$ is a known transformation function.
+
 ### Example
 
 Consider the case of a source dataset with a single document, $N=1$ and a single charge, $C=1$.
