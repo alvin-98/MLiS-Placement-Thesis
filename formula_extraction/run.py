@@ -32,16 +32,18 @@ def extract_function_arguments(function_str):
             return args
     return None
 # %%
-data=pd.read_csv('./sampledata.csv')
+data=pd.read_csv('formula_extraction/sampledata.csv')
 # %%
-# function to complete
-def calculate_total_fee(qc_value: float, tonnage: float, time_period: str = 'day') -> float:
-  """This function calculates the total fee based on the QC value, tonnage, and time period.
+# function to complete - needs manually updating for now
+def calculate_total_fee(qc_value: float, tonnage: float, time_min: float, time_period: str = 'day', park_type: str = 'Wide Remote') -> float:
+  """This function calculates the total fee based on the QC value, tonnage, and time period of noise as well as the time spent parked and the park type. 
   
   Args:
       qc_value (float): The QC value.
       tonnage (float): The weight in tonnes.
+      time_min (float): Time spent parked
       time_period (str): The time period, either 'day' or 'night'.
+      park_type (str): Type of parking undertaken
 
   Returns:
       float: The total fee calculated based on the provided inputs.
@@ -50,9 +52,9 @@ def calculate_total_fee(qc_value: float, tonnage: float, time_period: str = 'day
 # convert to a string representation for the LLM
 function_to_complete = inspect.getsource(calculate_total_fee)
 # %%
-sys_prompt = '''You are a helpful Python programming assistant. You are given an HTML document that contains a pricing table. Your job is to write clean, readable Python code that defines a function to compute a total fee based on inputs like 'QC', weight in tonnes, and whether it's 'day' or 'night'.
+sys_prompt = '''You are a helpful Python programming assistant. You are given multiple HTML tables combined into a single string. Each table represents a separate pricing scheme for an airport charge (e.g., noise, parking). Your task is to mentally interpret all tables and define a single Python function that computes the total cost by combining the relevant charges.
 
-The HTML may contain <th colspan>, <br> tags, currency symbols, and style attributes. You should mentally interpret the table and output a pure Python function that hardcodes the rates in a dictionary. Do not parse the HTML in code. Just read it and write a clean function.'''
+Each table may contain <th colspan>, <br> tags, currency symbols, and style attributes. You should **not parse** the HTML at runtime. Instead, read the tables and hardcode the extracted rates into the function as dictionaries.'''
 
 few_shot = '''Below is an HTML table containing fee rates based on QC Set values. Write a Python function that:
 
@@ -93,20 +95,22 @@ def calculate_total_fee(qc_value: float, tonnage: float, time_period: str = 'day
     return fees[qc_value][time_period] * tonnage'''
 
 user_prompt = f'''
-Below is an HTML table containing noise charge data.
+Below is an HTML string containing multiple pricing tables for different types of airport charges.
 
 Complete the following function:
 
 {function_to_complete}
 
-Ensure the function:
-- Matches the QC Set value exactly (do not interpolate),
-- Multiplies the corresponding per-tonne fee by the tonnage,
-- Uses the correct rate for 'day' or 'night',
-- Returns the total fee.
+The function should:
+- Extract all fee rates by interpreting the tables mentally and hardcoding them into the function,
+- Take all relevant inputs (e.g., QC, tonnage, time, parking duration/type),
+- Compute individual fees for each applicable charge (e.g., noise, parking),
+- Return the **total combined** fee,
+- Do not perform any HTML parsing at runtime.
 
-Only output the function. Do not parse the HTML at runtime.
+Only output the function. Do not include any comments or explanations.
 '''
+
 
 def make_prompt(html, sys_prompt=sys_prompt, few_shot=few_shot, user_prompt=user_prompt):
     full_prompt = f'''
@@ -135,9 +139,9 @@ for i in range(data.shape[0]):
     llm_funcs.append(_func_str) #some post-processing to extract the function code
     func_vars.append(_func_vars) #some post-processing to extract the function arguments
     completions.append(completion[0])
-    if i % 1 == 0:
-        break
+    
 # %%
+print('loop finished')
 data = data.copy()
 #truncate to length of completions for testing
 data = data.iloc[:len(completions)].reset_index(drop=True)
@@ -145,5 +149,5 @@ data = data.iloc[:len(completions)].reset_index(drop=True)
 data['function']=llm_funcs
 data['completion']=completions
 data['function_vars'] = str(func_vars)
-data.to_csv('./llmdata.csv', index=False)
+data.to_csv('formula_extraction/llmdata.csv', index=False)
 # %%

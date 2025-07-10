@@ -1,0 +1,86 @@
+doc_id,func,outputs_formula,outputs_llm_func,outputs_close
+0,"def calculate_total_fee(qc_value: float, tonnage: float, time_min: float, time_period: str = 'day', park_type: str = 'Wide Remote') -> float:
+    noise_fees = {
+        0: {'day': 11.38, 'night': 24.28},
+        0.125: {'day': 15.65, 'night': 8.52},
+        0.25: {'day': 24.93, 'night': 15.38},
+        0.5: {'day': 24.40, 'night': 8.41},
+        1: {'day': 16.46, 'night': 24.40},
+        2: {'day': 16.61, 'night': 11.27},
+        4: {'day': 7.24, 'night': 7.97},
+        8: {'day': 1.04, 'night': 22.38},
+        16: {'day': 20.19, 'night': 12.31},
+    }
+
+    aircraft_parking_fees = {
+        'Wide Remote': 9.60,
+        'Narrow Remote': 7.70,
+        'Long Term Remote*': 180.00,
+        'Light Aircraft Parking (LAP)': 2.65,
+    }
+
+    noise_fee = noise_fees.get(qc_value)
+    if not noise_fee:
+        raise ValueError(f""QC value {qc_value} not found in noise fees."")
+
+    parking_fee = aircraft_parking_fees.get(park_type)
+    if not parking_fee:
+        raise ValueError(f""Park type {park_type} not found in aircraft parking fees."")
+
+    if time_period == 'day':
+        parking_surcharge = 1
+    elif time_period == 'night':
+        parking_surcharge = 1.5
+    else:
+        raise ValueError(""time_period must be 'day' or 'night'"")
+
+    total_noise_fee = noise_fee[time_period] * tonnage
+    total_parking_fee = parking_fee * (time_min // 15) * parking_surcharge
+
+    return total_noise_fee + total_parking_fee
+","[359.2, 151.1]","[[359.2, 2676.0]]",False
+1,"def calculate_total_fee(qc_value: float, tonnage: float, time_min: float, time_period: str = 'day', park_type: str = 'Wide Remote') -> float:
+    noise_fees = {
+        0: {'day': 8.55, 'night': 8.55},
+        0.125: {'day': 7.43, 'night': 10.94},
+        0.25: {'day': 17.31, 'night': 10.05},
+        0.5: {'day': 3.59, 'night': 11.77},
+        1: {'day': 9.53, 'night': 10.11},
+        2: {'day': 19.98, 'night': 6.57},
+        4: {'day': 16.11, 'night': 0.67},
+        8: {'day': 15.38, 'night': 16.04},
+        16: {'day': 21.83, 'night': 3.10},
+    }
+
+    aircraft_parking_fees = {
+        'Wide Remote': 9.60,
+        'Narrow Remote': 7.70,
+        'Long Term Remote': 180.00,
+        'Light Aircraft Parking (LAP)': 2.65,
+    }
+
+    noise_fee = noise_fees.get(qc_value)
+    if not noise_fee:
+        raise ValueError(f""QC value {qc_value} not found."")
+
+    parking_surcharge = aircraft_parking_fees.get(park_type)
+    if not parking_surcharge:
+        raise ValueError(f""Park type {park_type} not found."")
+
+    if time_period not in ['day', 'night']:
+        raise ValueError(""time_period must be 'day' or 'night'"")
+
+    # Calculate the number of 15-minute intervals in the parking duration
+    intervals = (time_min * 60) // 15
+
+    # Calculate the parking surcharge
+    parking_surcharge_total = parking_surcharge * intervals
+
+    # Calculate the noise fee
+    noise_fee_total = noise_fee[time_period] * tonnage
+
+    # Calculate the total fee
+    total_fee = noise_fee_total + parking_surcharge_total
+
+    return total_fee
+","[906.0, 691.65]","[[6947.9, 92551.65]]",False

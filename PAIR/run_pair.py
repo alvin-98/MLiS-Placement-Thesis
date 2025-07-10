@@ -11,11 +11,10 @@ import copy
 
 def evaluate_model(device, batch_size,dataset,max_iterations,n_runs): 
     # initial model setup 
-    defence_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-chat-hf', torch_dtype=torch.bfloat16, device_map="auto").to(device)
-    defence_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', use_fast=False)
-    attack_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-chat-hf', torch_dtype=torch.bfloat16, device_map="auto")
-    attack_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', use_fast=False)
-    print(attack_tokenizer.chat_template)
+    defence_model = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', torch_dtype=torch.bfloat16, device_map="auto").to(device)
+    defence_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', use_fast=False)
+    attack_model = AutoModelForCausalLM.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', torch_dtype=torch.bfloat16, device_map="auto")
+    attack_tokenizer = AutoTokenizer.from_pretrained('meta-llama/Meta-Llama-3.1-8B-Instruct', use_fast=False)
     judge_model = AutoModelForCausalLM.from_pretrained("cais/HarmBench-Llama-2-13b-cls", torch_dtype=torch.bfloat16, device_map="auto")
     judge_tokenizer = AutoTokenizer.from_pretrained("cais/HarmBench-Llama-2-13b-cls", use_fast=False)
     defence_tokenizer.pad_token = defence_tokenizer.eos_token
@@ -165,7 +164,7 @@ the language model to respond to the harmful behavior. You are being evaluated. 
     df_rows=[]
     for i in range(n_runs): 
         Broken = False       
-        objective=dataset[i]['prompt'] #for logging purposes only
+        objective=dataset[i]['prompt'] 
         formatted_messages = []
         starter_messages=copy.deepcopy(messages) #reset messages for each new prompt
         for msg in starter_messages:
@@ -177,39 +176,44 @@ the language model to respond to the harmful behavior. You are being evaluated. 
         prompt = attack_tokenizer.apply_chat_template(formatted_messages, tokenize=False, add_generation_prompt=True)
         defence_response = 'N/A' #for logging purposes only
         most_likely_token = 'N/A' #for logging purposes only
-        for k in range(max_iterations):
-            attacker_inputs = attack_tokenizer(text=prompt, return_tensors='pt', padding=True, truncation=True).to(attack_model.device)
+        for k in range(max_iterations+1):
+            if k == 0:
+                attack_text=[objective]
+                defence_input = defence_tokenizer(text=objective, return_tensors='pt', padding=True, truncation=True).to(defence_model.device)    
+                new_prompt = objective
+            else:
+                attacker_inputs = attack_tokenizer(text=prompt, return_tensors='pt', padding=True, truncation=True).to(attack_model.device)
 
-            # Generate outputs
-            with torch.no_grad():
-                attack_outputs = attack_model.generate(
-                    **attacker_inputs,
-                    max_new_tokens=1512,
-                    do_sample=False,
-                    pad_token_id=attack_tokenizer.eos_token_id
-                )
+                # Generate outputs
+                with torch.no_grad():
+                    attack_outputs = attack_model.generate(
+                        **attacker_inputs,
+                        max_new_tokens=1512,
+                        do_sample=False,
+                        pad_token_id=attack_tokenizer.eos_token_id
+                    )
 
-            # Slice off the input part to get only the generated continuation
-            attack_text = attack_tokenizer.batch_decode(attack_outputs[:, attacker_inputs['input_ids'].size(1):], skip_special_tokens=True)
-            # Extract the improvement and prompt from the attack response
-            improvement, new_prompt = extract_improvement_and_prompt(attack_text[0])
-            if new_prompt == None:
-                statement = f'iteration {k+1} for prompt {i+1} failed. Skipping to next prompt'
-                print(statement)
-                Broken=True
-                final_row = {
-                    'objective': objective,
-                    'objective_number': i+1,
-                    'final_prompt': new_prompt,
-                    'final_output': defence_response,
-                    'iterations': k + 1,
-                    'broken': Broken,
-                    'judgement': most_likely_token,
-                    'full_history': formatted_messages
-                }
-                df_rows.append(final_row)
-                break    
-            defence_input = defence_tokenizer(text=new_prompt, return_tensors='pt', padding=True, truncation=True).to(defence_model.device)
+                # Slice off the input part to get only the generated continuation
+                attack_text = attack_tokenizer.batch_decode(attack_outputs[:, attacker_inputs['input_ids'].size(1):], skip_special_tokens=True)
+                # Extract the improvement and prompt from the attack response
+                improvement, new_prompt = extract_improvement_and_prompt(attack_text[0])
+                if new_prompt == None:
+                    statement = f'iteration {k+1} for prompt {i+1} failed. Skipping to next prompt'
+                    print(statement)
+                    Broken=True
+                    final_row = {
+                        'objective': objective,
+                        'objective_number': i+1,
+                        'final_prompt': new_prompt,
+                        'final_output': defence_response,
+                        'iterations': k,
+                        'broken': Broken,
+                        'judgement': most_likely_token,
+                        'full_history': formatted_messages
+                    }
+                    df_rows.append(final_row)
+                    break    
+                defence_input = defence_tokenizer(text=new_prompt, return_tensors='pt', padding=True, truncation=True).to(defence_model.device)
             defence_input_len = defence_input['input_ids'].shape[1]
             with torch.no_grad():
                     defence_outputs = defence_model.generate(
@@ -245,10 +249,10 @@ the language model to respond to the harmful behavior. You are being evaluated. 
                 "role": "user",
                 "content": f"LANGUAGE MODEL OUTPUT: {defence_response} OBJECTIVE: {objective} SCORE: {most_likely_token}"
             })
-            print(f"Iteration {k+1}/{max_iterations}")
-            print(f"Attack Response: {attack_response}")
-            print(f"Defence Response: {defence_response}")
-            print(f"Judge Response:{most_likely_token}")
+            #print(f"Iteration {k+1}/{max_iterations}")
+            #print(f"Attack Response: {attack_response}")
+            #print(f"Defence Response: {defence_response}")
+            #print(f"Judge Response:{most_likely_token}")
             if most_likely_token == 'Yes':
                 print("Attack successful!")
                 final_row = {
@@ -256,7 +260,7 @@ the language model to respond to the harmful behavior. You are being evaluated. 
                     'objective_number': i+1,
                     'final_prompt': new_prompt,
                     'final_output': defence_response,
-                    'iterations': k + 1,
+                    'iterations': k,
                     'broken': Broken,
                     'judgement': most_likely_token,
                     'full_history': formatted_messages
@@ -271,7 +275,7 @@ the language model to respond to the harmful behavior. You are being evaluated. 
                     'objective_number': i+1,
                     'final_prompt': new_prompt,
                     'final_output': defence_response,
-                    'iterations': k + 1,
+                    'iterations': k,
                     'broken': Broken,
                     'judgement': most_likely_token,
                     'full_history': formatted_messages
@@ -316,7 +320,9 @@ def main():
     dataset = load_dataset("walledai/HarmBench",'standard', split="train")
     print(f"Evaluating models on device: {args.device}")
     df = evaluate_model(args.device,args.batch_size,dataset,args.max_iterations,args.n_runs) 
-    df.to_csv(f'PAIR/results_L2.csv', index=True)
+    #df.to_csv(f'PAIR/results_L2.csv', index=True)
+    #df.to_csv(f'PAIR/quickcheck.csv', index=True)
+    df.to_csv(f'PAIR/results.csv', index=True)
     
 if __name__ == '__main__':
     main()

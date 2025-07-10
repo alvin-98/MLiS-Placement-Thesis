@@ -1,40 +1,71 @@
 # %%
 import pandas as pd
 import numpy as np
-test_values = [(1, 10, 'day'), (2, 5, 'night'), (8, 20, 'day'), (0, 15, 'night'), (0.25, 25, 'day'), (4, 30, 'night')]
+from input_data import input_values
+input_values = [
+    # Inputs for compute_noise_charge
+    [
+        {'qc': 0.5, 'weight': 10, 'day_night': 'day'},
+        {'qc': 1.0, 'weight': 15, 'day_night': 'night'}
+    ],
+
+    # Inputs for compute_park_charge_west
+    [
+        {'park_type': 'Wide Remote', 'time_min': 180},
+        {'park_type': 'Narrow Remote', 'time_min': 3000}
+    ]
+]
 df=pd.read_csv('llmdata.csv')
-
-evals = []
-
 for i in range(df.shape[0]):
-    doc = df['html'][i]  # the HTML document
-    formula = df['formula'][i]  # the true formula
+    print(df)
+test_values = []
+#should be checking that input values consistent with expected
+for inputs in zip(*input_values):
+    merged = {}
+    for d in inputs:
+        merged.update(d)
+    test_tuple = (
+        merged.get('qc'),
+        merged.get('weight'),
+        merged.get('time_min'),
+        merged.get('day_night'),
+        merged.get('park_type')
+    )
+    test_values.append(test_tuple)
+    
+# %%   
+outputs_formula=[] 
+for i in range(df.shape[0]):
+    data = ast.literal_eval(df['checks'][i])
+    for idx,d in enumerate(data):
+        d=sum(d)
+        data[idx]=d
+    outputs_formula.append(data)
+
+# %%
+evals = []
+outputs_llm_func = []
+for i in range(df.shape[0]):
     func = df['function'][i]  # the function string from the LLM
-    outputs_formula = []
+    intermediate_llm_outputs=[]
     outputs_llm_func = []
-    for qc, weight, day_night in test_values:
-        exec(formula)  # Ensure the function is defined in the current scope
-        formula_name = formula.split('(')[0].split()[-1]  # Extract the function name from the string
+    for qc, weight, time_min, day_night, park_type in test_values:
         exec(func)  # execute the function string to define the function in the current scope
         # Extract the function name from the string (assuming it's named `calculate_total_fee`)
         function_name = func.split('(')[0].split()[-1]
-
-        # Call the function dynamically using `globals()`
-        output_formula = globals()[formula_name](doc, qc, weight, day_night)
-        outputs_formula.append(output_formula)
-        output_llm = globals()[function_name](qc, weight, day_night)
-        outputs_llm_func.append(output_llm)
-
+        output_llm = globals()[function_name](qc, weight, time_min, day_night, park_type )
+        intermediate_llm_outputs.append(output_llm)
+    outputs_llm_func.append(intermediate_llm_outputs)
     evals.append({
         'doc_id': i,
-        'formula': formula,
         'func': func,
-        'outputs_formula': outputs_formula,
+        'outputs_formula': outputs_formula[i],
         'outputs_llm_func': outputs_llm_func,
         'outputs_close' : np.allclose(outputs_formula, outputs_llm_func, rtol=1e-04, atol=1e-04),
     })
 
 df_evals = pd.DataFrame(evals)
+print(df_evals.head())
 # %%
 df_evals.to_csv('evals.csv', index=False)
 # %%
