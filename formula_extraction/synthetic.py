@@ -93,16 +93,28 @@ def compute_park_charge_west(html, park_type, time_min):
 compute_park_charge_west = inspect.getsource(compute_park_charge_west)
 # %% Some functions to augment the document
 
+import random
+from bs4 import BeautifulSoup
+import re
+
 def add_random_values(document, formula):
-    """Augmentation function that replaces the € values in the HTML with random numbers.
-    Since the formula uses the document as input, it does not need to be changed.
-    """
+    """Replace euro values in both span and td tags with random numbers."""
     soup = BeautifulSoup(document, "html.parser")
+
+    # replace values in span tags for noise style htmls
     for span in soup.find_all("span"):
-        # Replace the € value with a random number
         new_value = round(random.uniform(0, 25), 2)
         span.string = f"€{new_value:.2f}"
+
+    # in other htmls dont have seperate tags - so have to find using re
+    for td in soup.find_all("td"):
+        if td.string:
+            if re.fullmatch(r"\d+\.\d{2}", td.string.strip()):
+                new_value = round(random.uniform(0, 25), 2)
+                td.string = f"{new_value:.2f}"
+
     return str(soup), formula
+
 
 def replace_text(document, formula, old_word, new_word):
     """Change a word (or phrase) in the document into a new one. requires inputting the
@@ -180,7 +192,8 @@ for i in range(n):
     intermediate.append([charges[i],charges[i+n]])
 for i in range(m):
     sorted_charges.append([intermediate[i],intermediate[i+m]])
-       
+print(sorted_charges)
+print(charges)       
 
                       
 

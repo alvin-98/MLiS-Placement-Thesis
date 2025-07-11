@@ -13,4 +13,4 @@ module load anaconda-uoneasy
 source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profile.d/conda.sh
 conda activate nlp
 
-python Syntheticdata/run.py
+python formula_extraction/run.py

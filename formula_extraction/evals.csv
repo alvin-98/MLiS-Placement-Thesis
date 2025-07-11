@@ -38,7 +38,7 @@ doc_id,func,outputs_formula,outputs_llm_func,outputs_close
     total_parking_fee = parking_fee * (time_min // 15) * parking_surcharge
 
     return total_noise_fee + total_parking_fee
-","[359.2, 151.1]","[[359.2, 2676.0]]",False
+","[359.2, 151.1]","[[359.2, 23466.0]]",False
 1,"def calculate_total_fee(qc_value: float, tonnage: float, time_min: float, time_period: str = 'day', park_type: str = 'Wide Remote') -> float:
     noise_fees = {
         0: {'day': 8.55, 'night': 8.55},
@@ -83,4 +83,4 @@ doc_id,func,outputs_formula,outputs_llm_func,outputs_close
     total_fee = noise_fee_total + parking_surcharge_total
 
     return total_fee
-","[906.0, 691.65]","[[6947.9, 92551.65]]",False
+","[906.0, 691.65]","[[6947.9, 924151.65]]",False

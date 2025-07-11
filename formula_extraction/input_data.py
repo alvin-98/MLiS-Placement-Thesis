@@ -8,6 +8,6 @@ input_values = [
     # Inputs for compute_park_charge_west
     [
         {'park_type': 'Wide Remote', 'time_min': 180},
-        {'park_type': 'Narrow Remote', 'time_min': 3000}
+        {'park_type': 'Narrow Remote', 'time_min': 30000}
     ]
 ]

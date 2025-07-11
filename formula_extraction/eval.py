@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 from input_data import input_values
+import ast
 df=pd.read_csv('llmdata.csv')
 for i in range(df.shape[0]):
     print(df)
