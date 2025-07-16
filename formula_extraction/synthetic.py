@@ -41,7 +41,7 @@ def compute_noise_charge(html, qc, weight, day_night):
     
     total_fee = float(fee.replace('€', '').replace(',', '.')) * weight
     return total_fee
-
+x=compute_noise_charge(noise_html,4,4,'day')
 # let's imagine we are given a string representation of the function
 compute_noise_charge = inspect.getsource(compute_noise_charge)
 # %% a function to calculate charnges for our second html

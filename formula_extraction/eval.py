@@ -4,8 +4,6 @@ import numpy as np
 from input_data import input_values
 import ast
 df=pd.read_csv('llmdata.csv')
-for i in range(df.shape[0]):
-    print(df)
 test_values = []
 #should be checking that input values consistent with expected
 for inputs in zip(*input_values):
