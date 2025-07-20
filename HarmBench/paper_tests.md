@@ -31,7 +31,9 @@ Direct request
 ## What are they
 
 GCG: https://arxiv.org/pdf/2307.15043
+
 PAIR: https://arxiv.org/pdf/2310.08419
+
 TAP: https://arxiv.org/pdf/2312.02119
 
 ## Harm bench experiments

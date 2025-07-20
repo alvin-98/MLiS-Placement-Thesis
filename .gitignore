@@ -21,3 +21,4 @@ huggingface/
 *.out
 *.log
 slurm-*.out
+Personal
