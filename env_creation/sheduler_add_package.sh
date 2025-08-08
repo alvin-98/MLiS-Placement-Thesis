@@ -11,6 +11,7 @@ module load anaconda-uoneasy
 
 source /gpfs01/software/easybuild-ada-uon/software/Anaconda3/2023.09-0/etc/profile.d/conda.sh
 conda activate nlp
-pip install --upgrade transformers
+pip install -U "huggingface_hub[hf_transfer]"
+
 
 

@@ -11,7 +11,7 @@ outs/
 *.bin
 *.pt
 *.ckpt
-
+models/
 __pycache__/
 *.py[cod]
 *.ipynb_checkpoints/
