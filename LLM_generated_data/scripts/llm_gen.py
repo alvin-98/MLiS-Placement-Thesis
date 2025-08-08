@@ -146,12 +146,14 @@ def load_generated_charges(json_path: str) -> Dict[str, Any]:
 
 
 def find_latest_output_json(pattern: str = "output_structure_*.json") -> str:
-    files = glob.glob(pattern)
+    base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
+    search_pattern = os.path.join(base_dir, pattern)
+    files = glob.glob(search_pattern)
     if not files:
-        raise FileNotFoundError(f"No files matching {pattern} found.")
-    # Prefer by timestamp in filename if possible, fallback to file mtime
+        raise FileNotFoundError(f"No files matching {search_pattern} found.")
     try:
-        files_sorted = sorted(files, key=lambda f: datetime.strptime(os.path.basename(f)[17:-5], "%Y-%m-%d_%H-%M-%S"), reverse=True)
+        files_sorted = sorted(files, key=lambda f: datetime.strptime(
+            os.path.basename(f)[17:-5], "%Y-%m-%d_%H-%M-%S"), reverse=True)
     except Exception:
         files_sorted = sorted(files, key=os.path.getmtime, reverse=True)
     return files_sorted[0]
@@ -190,15 +192,21 @@ def create_charge_answer_pair(answers: List[str], variables: List[str]) -> Tuple
 
 
 def save_document(content: str, filename: str = None) -> str:
+    base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
+    os.makedirs(base_dir, exist_ok=True)
     if filename is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"synthetic_dataset/charging_policy_{timestamp}.md"
+        filename = os.path.join(base_dir, f"charging_policy_{timestamp}.md")
     with open(filename, "w", encoding="utf-8") as f:
         f.write(content)
     return filename
 
 
-def save_datapoint_to_jsonl(datapoint: Dict[str, Any], filename: str = "synthetic_dataset/datapoints.jsonl"):
+def save_datapoint_to_jsonl(datapoint: Dict[str, Any], filename: str = None):
+    base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
+    os.makedirs(base_dir, exist_ok=True)
+    if filename is None:
+        filename = os.path.join(base_dir, "datapoints.jsonl")
     with open(filename, "a", encoding="utf-8") as f:
         json.dump(datapoint, f)
         f.write("\n")
@@ -210,7 +218,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.json:
-        json_path = args.json
+        json_path = os.path.join("LLM_generated_data", "synthetic_dataset", args.json)
     else:
         json_path = find_latest_output_json()
 

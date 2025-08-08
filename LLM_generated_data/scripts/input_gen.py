@@ -225,7 +225,7 @@ def select_and_handle_variables(charge_name: str) -> Tuple[str, str, List[str]]:
         dtype2 = VARIABLES[v2]["dtype"]
         if (dtype1 == str and dtype2 in (int, float)) or (dtype2 == str and dtype1 in (int, float)):
             valid_pairs.append((v1, v2))
-    if valid_pairs and random.random() < 0.5:
+    if valid_pairs:
         cat_var, cont_var = random.choice(valid_pairs)
         if VARIABLES[cat_var]["dtype"] != str:
             cat_var, cont_var = cont_var, cat_var
@@ -256,6 +256,13 @@ if __name__ == "__main__":
     run_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     output_structure["run_id"] = run_id
 
-    with open(f"output_structure_{run_id}.json", "w") as f:
+    # Ensure target folder exists
+    save_dir = "LLM_generated_data/synthetic_dataset"
+    os.makedirs(save_dir, exist_ok=True)
+
+    save_path = os.path.join(save_dir, f"output_structure_{run_id}.json")
+    with open(save_path, "w", encoding="utf-8") as f:
         json.dump(output_structure, f, indent=2)
+
+    print(f"Saved output structure to {save_path}")
 
