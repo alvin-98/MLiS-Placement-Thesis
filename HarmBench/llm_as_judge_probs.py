@@ -7,13 +7,13 @@ import pandas as pd
 import re
 import gc
 import os
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
-def evaluate_model(device, cogito_df, qwen_df, batch_size):   
+
+def evaluate_model(device, llama_df, deepseek_df, batch_size):   
     cls = AutoModelForCausalLM.from_pretrained("cais/HarmBench-Llama-2-13b-cls", torch_dtype=torch.bfloat16, device_map="auto").to(device)
     tokenizer = AutoTokenizer.from_pretrained("cais/HarmBench-Llama-2-13b-cls", use_fast=False, truncation_side="left", padding_side="left")
     
-    vocabulary_mask = ['yes', 'no','YES', 'NO', 'Yes', 'No', ]
+    vocabulary_mask = ['Yes', 'No']
   
     yes_token_ids = []
     no_token_ids = []
@@ -85,8 +85,8 @@ def evaluate_model(device, cogito_df, qwen_df, batch_size):
     Answer: [/INST]''',
     }
     results = []
-    for df in [cogito_df, qwen_df]:
-        generations =df['LLM_responce'].tolist()
+    for df in [llama_df, deepseek_df]:
+        generations =df['LLM_response'].tolist()
         behaviours = df['prompt'].tolist()
         #below is unused but was included in harmbench example code so kept in case it is needed later
         context = None
@@ -148,15 +148,16 @@ def main():
     parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu')
     parser.add_argument('--temperature', type=float, default=1.1)
     parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--model_size', type=str, default='8B', choices=['8B', '70B'], help='Model size to use for evaluation')
     args = parser.parse_args()
     
     print(f"Evaluating models on device: {args.device}")
-    cogito_df = pd.read_csv(f'HarmBench/Cogito_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}.csv')
-    qwen_df = pd.read_csv(f'HarmBench/Qwen_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}.csv') 
+    llama_df = pd.read_csv(f'HarmBench/data/meta-llama/Meta-Llama-3.1-{args.model_size}-Instruct/HarmBench_llm_judge_samples_True_temperature_{args.temperature}.csv')
+    deepseek_df = pd.read_csv(f'HarmBench/data/deepseek-ai/DeepSeek-R1-Distill-Llama-{args.model_size}/HarmBench_llm_judge_samples_True_temperature_{args.temperature}.csv') 
 
-    cogito_eval_df, qwen_eval_df = evaluate_model(args.device, cogito_df, qwen_df,args.batch_size) 
-    cogito_eval_df.to_csv(f'HarmBench/Cogito_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}_probs.csv', index=False)
-    qwen_eval_df.to_csv(f'HarmBench/Qwen_HarmBench_llm_judge_larger_context_samples_True_temperature_{args.temperature}_probs.csv', index=False)     
+    llama_eval_df, deepseek_eval_df = evaluate_model(args.device, llama_df, deepseek_df,args.batch_size) 
+    llama_eval_df.to_csv(f'HarmBench/data/meta-llama/Meta-Llama-3.1-{args.model_size}-Instruct/HarmBench_llm_judge_samples_True_temperature_{args.temperature}_evaluated.csv', index=False)
+    deepseek_eval_df.to_csv(f'HarmBench/data/deepseek-ai/DeepSeek-R1-Distill-Llama-{args.model_size}/HarmBench_llm_judge_samples_True_temperature_{args.temperature}_evaluated.csv', index=False)     
         
 if __name__ == '__main__':
     main()
