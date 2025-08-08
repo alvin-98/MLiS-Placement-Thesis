@@ -3,6 +3,7 @@ import json
 import itertools
 from typing import Dict, List, Any, Tuple, Union
 from datetime import datetime
+import os
 
 CHARGES = {
     "security_fee": {
