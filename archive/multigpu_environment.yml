@@ -1,4 +1,4 @@
-name: placement_dev
+name: placement_dev_trial
 channels:
   - conda-forge
   - defaults

@@ -1,0 +1,14 @@
+module purge
+module load gcc-uoneasy/12.3.0
+module load Clang/16.0.6-GCCcore-12.3.0
+module load CUDA/12.4.0
+export CC=clang
+export CXX=clang++
+export TRITON_BUILD_WITH_CLANG_LLD=1
+rm -rf ~/.triton ~/.cache/triton
+export VLLM_WORKER_MULTIPROC_METHOD=spawn
+module load anaconda-uoneasy/2023.09-0
+source /gpfs01/home/ppxac9/.zshrc
+conda activate envname
+
+uv run --with jupyter jupyter lab
