@@ -7,5 +7,10 @@
 11-08
 
 1. Checkout Tyler's Evals
-2. Test pipeline on various domains
-3. Continue Dissertation writing (write notation and references so far properly)
+- Notes for Tyler
+: Need a description and unit of the variables as well
+: Remove run_id from dict
+2. Develop script to generate values across the entire set of possible conditions
+3. Test pipeline on various domains
+4. Continue Dissertation writing (write notation and references so far properly)
+5. Figure out how to use vLLM

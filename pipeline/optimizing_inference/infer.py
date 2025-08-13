@@ -1,9 +1,13 @@
 from vllm import LLM, SamplingParams
+import os
 
 def main():
+    
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
     llm = LLM(
-        model="Qwen/Qwen3-32B",
-        tensor_parallel_size=2
+        model="Qwen/Qwen3-30B-A3B-Instruct-2507",
+        tensor_parallel_size=4
     )
 
     prompts = [
