@@ -1,0 +1,673 @@
+{
+  "charges": [
+    {
+      "charge_name": "Runway Landing and Take-off Charges",
+      "charge_type": "Per ATM",
+      "rules": [
+        {
+          "calculation_method": "Per tonne MTOW or part thereof",
+          "rate": 5.5,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "MTOW",
+              "operator": "less than or equal to",
+              "value": "}, {"
+            },
+            {
+              "field": "MTOW",
+              "operator": "greater than",
+              "value": "}]}, {"
+            },
+            {
+              "field": "Minimum Runway Movement Charge",
+              "operator": "less than",
+              "value": "}, {"
+            },
+            {
+              "field": "QRF",
+              "operator": "is",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Per tonne MTOW or part thereof",
+          "rate": 3.75,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "MTOW",
+              "operator": "greater than",
+              "value": "}]}, {"
+            },
+            {
+              "field": "Minimum Runway Movement Charge",
+              "operator": "less than",
+              "value": "}]}, {"
+            },
+            {
+              "field": "QRF",
+              "operator": "is",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Per tonne MTOW or part thereof",
+          "rate": 2.75,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "MTOW",
+              "operator": "less than or equal to",
+              "value": "}, {"
+            },
+            {
+              "field": "MTOW",
+              "operator": "greater than",
+              "value": "}]}, {"
+            },
+            {
+              "field": "Minimum Runway Movement Charge",
+              "operator": "less than",
+              "value": "}, {"
+            },
+            {
+              "field": "QRF",
+              "operator": "is",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Per tonne MTOW or part thereof",
+          "rate": 1.35,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "MTOW",
+              "operator": "greater than",
+              "value": "}]}, {"
+            },
+            {
+              "field": "Minimum Runway Movement Charge",
+              "operator": "less than",
+              "value": "}, {"
+            },
+            {
+              "field": "QRF",
+              "operator": "is",
+              "value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "charge_name": "Aircraft Parking Charges",
+      "charge_type": "Per 15 minutes or part thereof",
+      "rules": [
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 44.4,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Wide Contact"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 35.8,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Narrow Contact"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 12.3,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Wide Remote"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 9.8,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Narrow Remote"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 42.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Wide Satellite"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 32.9,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Narrow Satellite"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 3.5,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Light Aircraft Parking (LAP)"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 234.5,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Long Term Remote"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 9.6,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Wide Remote"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 7.7,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Narrow Remote"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 180.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Long Term Remote"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Standard Charge per Aircraft/Stand type",
+          "rate": 2.65,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Light Aircraft Parking (LAP)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "charge_name": "Airbridge Charge",
+      "charge_type": "Per 15 minutes or part thereof",
+      "rules": [
+        {
+          "calculation_method": "Charge level",
+          "rate": 9.3,
+          "unit": "€",
+          "tiers": null,
+          "conditions": []
+        }
+      ]
+    },
+    {
+      "charge_name": "Passenger Charge",
+      "charge_type": "Per passenger",
+      "rules": [
+        {
+          "calculation_method": "Passenger Charge Departure on a Contact Stand (Terminal 1/2)",
+          "rate": 12.9,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Contact"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Passenger Charge Departure on a Remote Stand (Terminal 1/2)",
+          "rate": 6.25,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Remote"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Passenger Charge Departure on a Satellite Stand (Terminal 1/2)",
+          "rate": 11.7,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Stand type",
+              "operator": "equals",
+              "value": "Satellite"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "charge_name": "Transfer Passenger Charge",
+      "charge_type": "Per passenger",
+      "rules": [
+        {
+          "calculation_method": "Transfer Passenger Charge",
+          "rate": 3.9,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Season",
+              "operator": "equals",
+              "value": "Summer"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Transfer Passenger Charge",
+          "rate": 2.8,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Season",
+              "operator": "equals",
+              "value": "Winter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "charge_name": "PRM Charge",
+      "charge_type": "Per passenger",
+      "rules": [
+        {
+          "calculation_method": "PRM charge",
+          "rate": 0.9,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "PRM prenotification rate",
+              "operator": "less than",
+              "value": "}]}, {"
+            },
+            {
+              "field": "PRM prenotification rate",
+              "operator": "between",
+              "value": "70-80%"
+            },
+            {
+              "field": "PRM prenotification rate",
+              "operator": "greater than",
+              "value": "80%"
+            }
+          ]
+        },
+        {
+          "calculation_method": "PRM charge",
+          "rate": 0.85,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "PRM prenotification rate",
+              "operator": "between",
+              "value": "70-80%"
+            }
+          ]
+        },
+        {
+          "calculation_method": "PRM charge",
+          "rate": 0.74,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "PRM prenotification rate",
+              "operator": "greater than",
+              "value": "80%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "charge_name": "Fast Track Charge",
+      "charge_type": "Per passenger",
+      "rules": [
+        {
+          "calculation_method": "Fast Track passenger charge",
+          "rate": 0.9,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Fare class",
+              "operator": "equals",
+              "value": "C, F, J"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "charge_name": "Environmental Charges",
+      "charge_type": "Per tonne",
+      "rules": [
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 0.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "}]}, {"
+            },
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "0.5"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 1.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "1"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 2.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "2"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 4.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "4"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 6.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "8"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "16"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 8.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "16"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 0.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "0.5"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 2.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "1"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 4.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "2"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 8.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "4"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "8"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 12.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "8"
+            },
+            {
+              "field": "QC",
+              "operator": "less than or equal to",
+              "value": "16"
+            }
+          ]
+        },
+        {
+          "calculation_method": "Noise Charges",
+          "rate": 16.0,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "QC",
+              "operator": "greater than",
+              "value": "16"
+            }
+          ]
+        },
+        {
+          "calculation_method": "NOx-based charge on Emissions",
+          "rate": 0.25,
+          "unit": "€",
+          "tiers": null,
+          "conditions": [
+            {
+              "field": "Number of Engines",
+              "operator": "equals",
+              "value": "1"
+            },
+            {
+              "field": "NOx (kg/Engine)",
+              "operator": "equals",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
