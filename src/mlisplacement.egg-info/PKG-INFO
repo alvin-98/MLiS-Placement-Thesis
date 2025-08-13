@@ -1,3 +1,29 @@
+Metadata-Version: 2.4
+Name: mlisplacement
+Version: 0.1.0
+Author: 
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: torch
+Requires-Dist: transformers
+Requires-Dist: datasets
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Provides-Extra: infer-opt
+Requires-Dist: vllm; extra == "infer-opt"
+Provides-Extra: struc-extract
+Requires-Dist: guidance; extra == "struc-extract"
+Requires-Dist: accelerate; extra == "struc-extract"
+Requires-Dist: gpustat; extra == "struc-extract"
+Requires-Dist: vllm; extra == "struc-extract"
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: keywords
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+
 # MLiS Placement Thesis
 
 ## About
