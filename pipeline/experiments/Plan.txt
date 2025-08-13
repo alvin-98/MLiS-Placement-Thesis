@@ -1,0 +1,11 @@
+1. Ask the LLM in it's reasoning process to root out any uncertain or unclear stuff or if it wants more clarity on certain things before constructing the graph.
+2. Multiple rounds of reasoning and construction and looking at what it constructed and trying again to correct if required / asking for clarification if stuck.
+3. Using variables to terminate the loop / using fixed length loops (reason + execute + reflect)
+
+---
+
+11-08
+
+1. Checkout Tyler's Evals
+2. Test pipeline on various domains
+3. Continue Dissertation writing (write notation and references so far properly)

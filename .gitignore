@@ -22,3 +22,5 @@ huggingface/
 *.log
 slurm-*.out
 Personal
+qwen-235b-4bit/
+
