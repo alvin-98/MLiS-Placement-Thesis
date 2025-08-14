@@ -1,0 +1,16 @@
+{
+  "cpu_compute": {
+    "description": "cpu_compute conditions by processor type and execution time:\n\nfor Intel the following charges apply:\n  - if execution time in [2399.7, 3600.0), charge is 0.0 x execution time\n  - if execution time in [959.8, 2399.7), charge is 1.0 x execution time\n  - if execution time in [0.0, 959.8), charge is 2.0 x execution time\nfor AMD the following charges apply:\n  - if execution time in [2399.7, 3600.0), charge is 0.0 x execution time\n  - if execution time in [959.8, 2399.7), charge is 1.1 x execution time\n  - if execution time in [0.0, 959.8), charge is 2.2 x execution time\nfor ARM the following charges apply:\n  - if execution time in [2399.7, 3600.0), charge is 0.0 x execution time\n  - if execution time in [959.8, 2399.7), charge is 1.2 x execution time\n  - if execution time in [0.0, 959.8), charge is 2.4 x execution time",
+    "code": "def compute_charge(cpu_type, processing_time):\n    if cpu_type == 'Intel' and 2399.7 <= processing_time < 3600.0: return 0 * processing_time * 1.0\n    elif cpu_type == 'Intel' and 959.8 <= processing_time < 2399.7: return 1 * processing_time * 1.0\n    elif cpu_type == 'Intel' and 0.0 <= processing_time < 959.8: return 2 * processing_time * 1.0\n    elif cpu_type == 'AMD' and 2399.7 <= processing_time < 3600.0: return 0 * processing_time * 1.1\n    elif cpu_type == 'AMD' and 959.8 <= processing_time < 2399.7: return 1 * processing_time * 1.1\n    elif cpu_type == 'AMD' and 0.0 <= processing_time < 959.8: return 2 * processing_time * 1.1\n    elif cpu_type == 'ARM' and 2399.7 <= processing_time < 3600.0: return 0 * processing_time * 1.2\n    elif cpu_type == 'ARM' and 959.8 <= processing_time < 2399.7: return 1 * processing_time * 1.2\n    elif cpu_type == 'ARM' and 0.0 <= processing_time < 959.8: return 2 * processing_time * 1.2\n    else: raise ValueError(f'cpu_type or processing_time is out of expected range')",
+    "variables_used": [
+      "cpu_type",
+      "processing_time"
+    ],
+    "synonyms": [
+      "CPU time",
+      "processing hours"
+    ],
+    "charge_description": "The charge associated with a CPU compute instance."
+  },
+  "run_id": "2025-08-14_10-04-16"
+}

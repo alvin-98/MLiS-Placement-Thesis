@@ -8,8 +8,8 @@ from typing import Dict, List, Any, Tuple
 from datetime import datetime
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from prompts import one_shot_example
-
+from .prompts import one_shot_example
+from .utils import load_generated_charges, save_document, save_datapoint_to_jsonl
 
 class LLMClient:
     """Simple client for interacting with Hugging Face Transformers models."""
@@ -138,40 +138,52 @@ def extract_first_paragraph(text: str) -> str:
 def choose_currency() -> str:
     return random.choice(["USD", "EUR", "GBP"])
 
-
-def load_generated_charges(json_path: str) -> Dict[str, Any]:
-    with open(json_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return {k: v for k, v in data.items() if isinstance(v, dict) and "description" in v and "code" in v}
-
-
-def find_latest_output_json(pattern: str = "output_structure_*.json") -> str:
-    base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
-    search_pattern = os.path.join(base_dir, pattern)
-    files = glob.glob(search_pattern)
-    if not files:
-        raise FileNotFoundError(f"No files matching {search_pattern} found.")
-    try:
-        files_sorted = sorted(files, key=lambda f: datetime.strptime(
-            os.path.basename(f)[17:-5], "%Y-%m-%d_%H-%M-%S"), reverse=True)
-    except Exception:
-        files_sorted = sorted(files, key=os.path.getmtime, reverse=True)
-    return files_sorted[0]
+# def load_generated_charges(json_path: str) -> Dict[str, Any]:
+#     with open(json_path, "r", encoding="utf-8") as f:
+#         data = json.load(f)
+#     return {k: v for k, v in data.items() if isinstance(v, dict) and "description" in v and "code" in v}
 
 
-def generate_document_from_json(client: LLMClient, output_json_path: str) -> Tuple[str, List[str], List[str]]:
-    data = load_generated_charges(output_json_path)
+# def find_latest_output_json(pattern: str = "output_structure_*.json") -> str:
+#     base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
+#     search_pattern = os.path.join(base_dir, pattern)
+#     files = glob.glob(search_pattern)
+#     if not files:
+#         raise FileNotFoundError(f"No files matching {search_pattern} found.")
+#     try:
+#         files_sorted = sorted(files, key=lambda f: datetime.strptime(
+#             os.path.basename(f)[17:-5], "%Y-%m-%d_%H-%M-%S"), reverse=True)
+#     except Exception:
+#         files_sorted = sorted(files, key=os.path.getmtime, reverse=True)
+#     return files_sorted[0]
+
+def generate_document_from_json(client: LLMClient, charges_dict: dict | None = None, charges_path: str | None = None) -> Tuple[str, List[str], List[str]]:
+    """Given the charges structure, generate a document with sections for each charge.
+
+    Args:
+        client (LLMClient): The LLM client to use for text generation.
+        charges_dict (dict, optional): Dictionary representation of charges. Defaults to None.
+        charges_path (str, optional): Path to a JSON file containing charges. Defaults to None.
+
+    """
+    if charges_dict is None and charges_path is None:
+        raise ValueError("Either charges_dict or output_json_path must be provided.")
+    if charges_path is not None:
+        charges_dict = load_generated_charges(charges_path)
+    if not charges_dict:
+        raise ValueError("No valid charges found in the provided JSON.")
+
     currency = choose_currency()
     airport_name = extract_first_paragraph(generate_airport_name(client, currency))
     introduction = generate_document_introduction(client, airport_name, currency)
     conclusion = generate_document_conclusion(client, airport_name, currency)
 
-    charge_names = list(data.keys())
+    charge_names = list(charges_dict.keys())
     titles = [make_section_title(client, airport_name, charge.replace("_", " ").title()) for charge in charge_names]
     rendered_sections, answers, names = [], [], []
 
     for charge, title in zip(charge_names, titles):
-        entry = data[charge]
+        entry = charges_dict[charge]
         section_html_or_text = decide_charge_format(client, airport_name, entry)
         rendered_sections.append(f"## {title}\n\n{section_html_or_text}")
         answers.append(entry.get("code", ""))
@@ -190,51 +202,49 @@ def create_charge_answer_pair(answers: List[str], variables: List[str]) -> Tuple
     idx = random.randint(0, len(answers) - 1)
     return answers[idx], variables[idx]
 
-
-def save_document(content: str, filename: str = None) -> str:
-    base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
-    os.makedirs(base_dir, exist_ok=True)
-    if filename is None:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(base_dir, f"charging_policy_{timestamp}.md")
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(content)
-    return filename
-
-
-def save_datapoint_to_jsonl(datapoint: Dict[str, Any], filename: str = None):
-    base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
-    os.makedirs(base_dir, exist_ok=True)
-    if filename is None:
-        filename = os.path.join(base_dir, "datapoints.jsonl")
-    with open(filename, "a", encoding="utf-8") as f:
-        json.dump(datapoint, f)
-        f.write("\n")
+# def save_document(content: str, filename: str = None) -> str:
+#     base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
+#     os.makedirs(base_dir, exist_ok=True)
+#     if filename is None:
+#         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+#         filename = os.path.join(base_dir, f"charging_policy_{timestamp}.md")
+#     with open(filename, "w", encoding="utf-8") as f:
+#         f.write(content)
+#     return filename
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--json", help="Path to a specific output_structure JSON file", default=None)
-    args = parser.parse_args()
+# def save_datapoint_to_jsonl(datapoint: Dict[str, Any], filename: str = None):
+#     base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
+#     os.makedirs(base_dir, exist_ok=True)
+#     if filename is None:
+#         filename = os.path.join(base_dir, "datapoints.jsonl")
+#     with open(filename, "a", encoding="utf-8") as f:
+#         json.dump(datapoint, f)
+#         f.write("\n")
 
-    if args.json:
-        json_path = os.path.join("LLM_generated_data", "synthetic_dataset", args.json)
-    else:
-        json_path = find_latest_output_json()
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("--json", help="Path to a specific output_structure JSON file", default=None)
+#     args = parser.parse_args()
 
-    client = LLMClient(model_name='meta-llama/Meta-Llama-3.1-8B-Instruct')
-    document_content, answers, names = generate_document_from_json(client, json_path)
+#     if args.json:
+#         json_path = os.path.join("LLM_generated_data", "synthetic_dataset", args.json)
+#     else:
+#         json_path = find_latest_output_json()
 
-    target, charge_type = create_charge_answer_pair(answers, names)
-    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    datapoint = {
-        "charge_type": charge_type,
-        "document": document_content,
-        "target": target,
-        "document_id": run_id,
-    }
-    save_datapoint_to_jsonl(datapoint)
+#     client = LLMClient(model_name='meta-llama/Meta-Llama-3.1-8B-Instruct')
+#     document_content, answers, names = generate_document_from_json(client, json_path)
 
-    saved_filename = save_document(document_content, filename=f"synthetic_dataset/document_{run_id}.md")
-    print(f"Using JSON file: {json_path}")
-    print(f"Document saved to {saved_filename}")
+#     target, charge_type = create_charge_answer_pair(answers, names)
+#     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+#     datapoint = {
+#         "charge_type": charge_type,
+#         "document": document_content,
+#         "target": target,
+#         "document_id": run_id,
+#     }
+#     save_datapoint_to_jsonl(datapoint)
+
+#     saved_filename = save_document(document_content, filename=f"synthetic_dataset/document_{run_id}.md")
+#     print(f"Using JSON file: {json_path}")
+#     print(f"Document saved to {saved_filename}")

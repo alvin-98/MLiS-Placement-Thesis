@@ -1,0 +1,16 @@
+{
+  "cpu_compute": {
+    "description": "cpu_compute conditions by CPU model and CPU utilization:\n\nfor Intel the following charges apply:\n  - if CPU utilization in [0.0, 68.4), charge is 0.0 x CPU utilization\n  - if CPU utilization in [68.4, 100.0), charge is 1.0 x CPU utilization\nfor AMD the following charges apply:\n  - if CPU utilization in [0.0, 68.4), charge is 0.0 x CPU utilization\n  - if CPU utilization in [68.4, 100.0), charge is 1.1 x CPU utilization\nfor ARM the following charges apply:\n  - if CPU utilization in [0.0, 68.4), charge is 0.0 x CPU utilization\n  - if CPU utilization in [68.4, 100.0), charge is 1.2 x CPU utilization",
+    "code": "def compute_charge(cpu_type, cpu_usage):\n    if cpu_type == 'Intel' and 0.0 <= cpu_usage < 68.4: return 0 * cpu_usage * 1.0\n    elif cpu_type == 'Intel' and 68.4 <= cpu_usage < 100.0: return 1 * cpu_usage * 1.0\n    elif cpu_type == 'AMD' and 0.0 <= cpu_usage < 68.4: return 0 * cpu_usage * 1.1\n    elif cpu_type == 'AMD' and 68.4 <= cpu_usage < 100.0: return 1 * cpu_usage * 1.1\n    elif cpu_type == 'ARM' and 0.0 <= cpu_usage < 68.4: return 0 * cpu_usage * 1.2\n    elif cpu_type == 'ARM' and 68.4 <= cpu_usage < 100.0: return 1 * cpu_usage * 1.2\n    else: raise ValueError(f'cpu_type or cpu_usage is out of expected range')",
+    "variables_used": [
+      "cpu_type",
+      "cpu_usage"
+    ],
+    "synonyms": [
+      "CPU time",
+      "processing hours"
+    ],
+    "charge_description": "The charge associated with a CPU compute instance."
+  },
+  "run_id": "2025-08-14_09-57-56"
+}

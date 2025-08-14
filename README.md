@@ -42,3 +42,17 @@ Different packages can be accessed as modules,
 import mlisplacement as mlp
 mlp.red_team.get_prompt_style("default")
 ```
+
+## Synthdoc
+
+See example usage in `examples\synthdoc`.
+
+This package provides functionality to synthesize documents. Including:
+- **Function creation**: Uses hard-coded methods to generate python functions from given combinations of charges and variables.
+- **LLM Assisted Document Generation**: Uses LLMs to synthesise documents with a given structure.
+
+### Function Creation
+
+- Functions are provided in `synthdoc.function_creation` module.
+- These can be combined with example charge-variable structures from `synthdoc.structs.airports`, `synthdoc.structs.azure` and so on.
+- A cli tool is also available via `generate_functions`
