@@ -7,7 +7,8 @@ Mono-repo consisting of packages developed as part of the MLiS Placement and ass
 - `synthdoc`: for generation of synthetic documents
 - `red_team`: for automated LLM red-teaming
 - `infer_opt`: for inference optimisation
-- `struc_extract`: for structured extraction of information from documents
+- `extractor`: for structured extraction of information from documents
+- `structs`: useful data structures written in pydantic
 - [...]
 
 ## Setup
@@ -31,7 +32,7 @@ pip install -e .
 
 To install addition dependencies for a given package, include the options, e.g.,
 ```bash
-pip install -e .[struc_extract]
+pip install -e .[extractor]
 ```
 
 ## Example Usage
@@ -42,6 +43,8 @@ Different packages can be accessed as modules,
 import mlisplacement as mlp
 mlp.red_team.get_prompt_style("default")
 ```
+
+## Structs
 
 ## Synthdoc
 

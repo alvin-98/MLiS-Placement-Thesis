@@ -1,45 +1,16 @@
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Any, Optional
 from enum import Enum
 import guidance
 from guidance import system, user, assistant
 from guidance import json as gen_json
 from mlisplacement.utils import timing_decorator
-
-class ParameterStatus(str, Enum):
-    """An enumeration for clear, explicit parameter statuses."""
-    KNOWN = "KNOWN"
-    SYMBOLIC = "SYMBOLIC"
-
-class ParameterDetail(BaseModel):
-    """A structured model to describe each parameter identified from the query."""
-    name: str = Field(..., description="The name of the parameter.")
-    status: ParameterStatus = Field(..., description="Whether the parameter's value is known from the query or is a symbolic variable.")
-    value: Optional[Any] = Field(None, description="The actual value of the parameter, if its status is 'KNOWN'. Must be null if status is 'SYMBOLIC'.")
-
-class ReasoningSchemaStep1(BaseModel):
-    query_parameters: List[ParameterDetail] = Field(
-        ...,
-        description="A structured list of all parameters identified from the query and their status."
-    )
-class ReasoningSchemaStep2(BaseModel):
-    """
-    A simplified schema for Step 2 that captures all constants and rules as a simple list of descriptive strings.
-    """
-    identified_constants_and_rules: List[str] = Field(
-        ...,
-        description="A comprehensive list of all facts, constants, and conditional rules extracted from the document that are necessary for the final calculation. Each string in the list should be a self-contained, clear statement. For example: 'The rate for a Narrow Satellite stand is €32.90 per 15 minutes' or 'A 100% surcharge is applied if parking duration is between 48 and 72 hours'."
-    )
-class ReasoningSchemaStep3(BaseModel):
-    synthesis_plan: str = Field(
-        ...,
-        description="A concise, step-by-step plan describing how the variables and constants are combined into the final computation graph."
-    )
-class ReasoningSchemaStep4(BaseModel):
-    rethink: str = Field(
-        ...,
-        description="Final check to ensure the plan correctly uses variables and constants and handles all logic from the document."
-    )
+from mlisplacement.structs.reasoning import (
+    ReasoningSchemaStep1,
+    ReasoningSchemaStep2,
+    ReasoningSchemaStep3,
+    ReasoningSchemaStep4
+)
+from mlisplacement.structs.base import Node
+import time
 
 @guidance
 def create_graph_with_cot(model: guidance.models.Transformers, allowed_variables_prompt: list[str], document: str, query: str, output_schema) -> guidance.models.Transformers:
@@ -132,74 +103,70 @@ def create_graph_with_cot(model: guidance.models.Transformers, allowed_variables
 
     return model
 
-#TODO: abstract the global CHARGE_CATEGORY_VARIABLES
-def create_dynamic_variable_enum(charge_category: str) -> Enum:
+def create_variables_prompt(charge_name, all_charges: dict, all_variables: dict) -> str:
     """
-    Creates a new Enum class containing only the variables relevant
-    to the specified charge category.
+    Creates a formatted prompt string of allowed variables for the LLM.
 
-    CHARGE_CATEGORY_VARIABLES provides a mapping from charge categories to the variable names they can use.
+    Args:
+        charge_name (str): The name of the charge category.
+        all_charges (dict): A dictionary of all charge categories and their variables.
+        all_variables (dict): A dictionary of all variable names and their descriptions.
+
+    Returns:
+        str: A formatted string listing all allowed variables.
     """
-    variable_names = CHARGE_CATEGORY_VARIABLES.get(charge_category)
-    if not variable_names:
-        raise ValueError(f"Unknown charge category: {charge_category}")
-    
-    # The dictionary for the Enum must have {MEMBER_NAME: value}
-    # We'll use uppercase for the member name for convention.
-    enum_dict = {name.upper(): name for name in variable_names}
-    
-    # Create the Enum class dynamically
-    return Enum("Var", enum_dict)
+    # check charge_name is valid
+    if charge_name not in all_charges:
+        raise ValueError(f"Unknown charge category: {charge_name}. Available categories: {list(all_charges.keys())}")
 
-
-#TODO: abstract the global ALL_VARIABLES
+    allowed_variables = all_charges[charge_name]["variables"]
+    if not allowed_variables:
+        raise ValueError(f"Unknown charge category: {charge_name}")
+    return "\n".join(
+        [f"- **{v['name']}**: {v['description']}" for name, v in all_variables.items() if name in allowed_variables]
+    )
 class ComputationGraphBuilder:
     """
     Orchestrates the creation of a computation graph by preparing dynamic
     constraints and prompting the LLM.
     """
-    
-    def __init__(self, model):
+
+    def __init__(self, model, output_schema = Node):
         """
         Initializes the builder with a guidance model.
         """
         self.model = model
+        self.output_schema = output_schema
 
     @timing_decorator
-    def build(self, document_content: str, query: str, charge_category: str) -> dict:
+    def build(self, document_content: str, query: str, charge_name: str, all_charges: dict, all_variables: dict) -> dict:
         """
         Generates a computation graph for a given query and document.
 
         Args:
             document_content: The text containing the rules.
             query: A natural language question about what to calculate.
-            charge_category: The specific charge context used to filter variables.
+            charge_name: The specific charge context used to filter variables.
+
 
         Returns:
             A dictionary representing the computation graph or an error.
         """
-        print(f"--- Building graph for charge category: '{charge_category}' ---")
-        
-        # 1. Dynamically create the filtered Enum for this specific task
-        try:
-            Var = create_dynamic_variable_enum(charge_category)
-        except ValueError as e:
-            print(f"Error: {e}")
-            return {"error": str(e)}
+        print(f"--- Building graph for charge: '{charge_name}' ---")
 
-        # 3. Create a formatted prompt string of allowed variables for the LLM
-        allowed_variables = [el.value for el in list(Var)]
-        allowed_variables_prompt = "\n".join(
-            [f"- **{v.name}**: {v.description}" for name, v in ALL_VARIABLES.items() if name in allowed_variables]
+        allowed_variables_prompt = create_variables_prompt(
+            charge_name, 
+            all_charges, 
+            all_variables
         )
 
         try:
-            # 4. Execute the guidance program with all dynamic components
+            # Execute the guidance program with all dynamic components
             result_lm = self.model + create_graph_with_cot(
                 allowed_variables_prompt=allowed_variables_prompt,
                 document=document_content,
                 query=query,
-                output_schema=Node
+                output_schema=self.output_schema
             )
             
             return result_lm
@@ -207,3 +174,21 @@ class ComputationGraphBuilder:
         except Exception as e:
             print(f"\nAn error occurred while building the graph for '{query}': {e}")
             return {"error": str(e)}
+        
+def generate(model, query, charge_name, markdown_content, all_charges, all_variables):
+    """Generate text using structured reasoning"""
+    graph_builder = ComputationGraphBuilder(model=model)
+
+    start_time = time.perf_counter()
+    llm_structured_response = graph_builder.build(
+        document_content=markdown_content,
+        query=query,
+        charge_name=charge_name,
+        all_charges=all_charges,
+        all_variables=all_variables
+    )
+    end_time = time.perf_counter()
+    build_time = end_time - start_time
+
+    return llm_structured_response, build_time
+

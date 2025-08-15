@@ -16,6 +16,7 @@ setup(
         "torch",
         "transformers",
         "datasets",
+        "pydantic",
     ],
     extras_require={
         "dev": [
@@ -25,11 +26,12 @@ setup(
         "infer_opt": [
             "vllm"
         ],
-        "struc_extract": [
+        "extractor": [
             "guidance",
             "accelerate",
             "gpustat",
-            "vllm"
+            "vllm",
+            "sympy",
         ]
     },
 )

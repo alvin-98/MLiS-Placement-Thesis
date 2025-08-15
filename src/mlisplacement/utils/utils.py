@@ -2,6 +2,7 @@ import time
 import functools
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+from enum import Enum
 
 def read_md(file_path):
     """
@@ -46,3 +47,22 @@ def timing_decorator(func):
         
         return result
     return wrapper
+
+#TODO: abstract the global CHARGE_CATEGORY_VARIABLES
+def create_dynamic_variable_enum(charge_category: str, charge_category_variables: dict) -> Enum:
+    """
+    Creates a new Enum class containing only the variables relevant
+    to the specified charge category.
+
+    charge_category_variables provides a mapping from charge categories to the variable names they can use.
+    """
+    variable_names = charge_category_variables.get(charge_category)
+    if not variable_names:
+        raise ValueError(f"Unknown charge category: {charge_category}")
+    
+    # The dictionary for the Enum must have {MEMBER_NAME: value}
+    # We'll use uppercase for the member name for convention.
+    enum_dict = {name.upper(): name for name in variable_names}
+    
+    # Create the Enum class dynamically
+    return Enum("Var", enum_dict)
