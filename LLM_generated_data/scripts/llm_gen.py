@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Tuple
 from datetime import datetime
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from prompts import one_shot_example
+from prompts import one_shot_example_1, one_shot_example_2, one_shot_example_3
 
 
 class LLMClient:
@@ -27,13 +27,13 @@ class LLMClient:
 
     def generate_text(self, prompt: str, max_tokens: int = 200) -> str:
         system_prompt = (
-            "You are a professional assistant trained to generate policy documentation and HTML tables for airport pricing documents. "
+            "You are a professional assistant trained to generate policy documentation and HTML tables for cloud pricing documents. "
             "You always follow instructions precisely and do not include any explanation, commentary, or additional text beyond what is requested. "
             "When asked to generate a table, output only valid HTML starting with a <table> tag. "
             "When asked to write a paragraph, respond in a concise, informative, and professional tone. "
             "Do not refer to the user, and do not include disclaimers or formatting notes. "
-            "Maintain consistency with real-world pricing policies and use appropriate domain terminology."
-            "The goal is to create documentation as close to human-written as possible, Do not use any symbols or formatting a human would not use. "
+            "Maintain consistency with real-world cloud pricing policies and use appropriate domain terminology. "
+            "The goal is to create documentation as close to human-written as possible."
         )
         messages = [
             {"role": "system", "content": system_prompt},
@@ -56,15 +56,20 @@ def extract_table(html_str: str) -> str:
     return m.group(0) if m else "This charge is temporarily suspended due to technical issues."
 
 
-def generate_document_table(llm_client: LLMClient, airport_name: str, charge_description: str, max_retries: int = 3) -> str:
-    prompt = f"""Write a professionally human readable formatted html table for a charging policy document from {airport_name}. 
-You should only return the HTML table code, nothing else.
-All information should be contained within a single table not multiple tables.
-An example will be provided to help you understand the format however you should add your own stylistic touch.
-The example is:
-{one_shot_example} 
-INPUT: {charge_description}.  
-OUTPUT:"""
+def generate_document_table(llm_client: LLMClient, provider_name: str, currency:str, charge_description: str, max_retries: int = 3) -> str:
+    if random.random() < 0.5: # add more variety to tables with two different options
+        one_shot_example = one_shot_example_1
+    else:
+        one_shot_example = one_shot_example_2
+    prompt = f"""Write a professionally human readable HTML table for a cloud pricing policy from {provider_name}.
+    The currency of this table is {currency} - be sure to include this
+    Return only the HTML table, nothing else.
+    All information should be in a single table.
+    examples of the type of charge expected are as follows:
+    {one_shot_example}
+    {one_shot_example_3}
+    INPUT: {charge_description}
+    OUTPUT:"""
     max_tokens = 1000
     for attempt in range(max_retries):
         html = llm_client.generate_text(prompt, max_tokens=max_tokens)
@@ -75,58 +80,51 @@ OUTPUT:"""
     return ""
 
 
-def generate_charge_description(llm_client: LLMClient, airport_name: str, charge_description: str) -> str:
-    prompt = f"""Write a professional description for a charge category at {airport_name}. 
-The description should be concise, informative, and suitable for a charging policy document. 
-The charge description is: {charge_description}. 
-The description should be 1-2 paragraphs explaining what the charge covers and its purpose.
-Description should be clear and suitable for a formal document.
-Do not include any disclaimers or additional text, just the description. Do not hallucinate any charges not in the description."""
+def generate_charge_description(llm_client: LLMClient, provider_name: str,currency: str, charge_description: str) -> str:
+    prompt = f"""Write a professional description for a cloud pricing charge category from {provider_name}.
+Be concise, informative, and suitable for a pricing policy document.
+Charge description: {charge_description}. 
+Be sure to mention the curreny : {currency}
+Return 1–2 paragraphs explaining what the charge covers and its purpose.
+Do not include disclaimers or additional text."""
     return llm_client.generate_text(prompt, max_tokens=500)
 
 
-def decide_charge_format(llm_client: LLMClient, airport_name: str, entry: Dict[str, Any], table_chance: float = 0.7) -> str:
+def decide_charge_format(llm_client: LLMClient, provider_name: str,currency: str, entry: Dict[str, Any], table_chance: float = 0.7) -> str:
     desc = entry["description"]
-    used = entry.get("variables_used", [])
-    want_table = len(used) > 1 or random.random() < table_chance
+    # variables_used is now a dict like {var_name: {unit, description, dtype}}
+    used_meta = entry.get("variables_used", {}) or {}
+    used_count = len(used_meta) if isinstance(used_meta, dict) else len(used_meta)
+    want_table = used_count > 1 or random.random() < table_chance
     if want_table:
-        html = generate_document_table(llm_client, airport_name, desc, max_retries=2)
-        return extract_table(html) if html else generate_charge_description(llm_client, airport_name, desc)
-    return generate_charge_description(llm_client, airport_name, desc)
+        html = generate_document_table(llm_client, provider_name,currency, desc, max_retries=2)
+        return extract_table(html) if html else generate_charge_description(llm_client, provider_name, currency, desc)
+    return generate_charge_description(llm_client, provider_name, currency, desc)
 
 
-def generate_airport_name(llm_client: LLMClient, currency: str) -> str:
-    examples = {
-        "USD": "Liberty International Airport, Eagle Point Aviation Hub, Sunrise Municipal Airport, Golden Gate Regional Airport",
-        "EUR": "Europa International Airport, Alpine Valley Airport, Mediterranean Coast Airport, Northern Lights Aviation Hub",
-        "GBP": "Royal Crown Airport, Thames Valley International, Highland Regional Airport, Coastal Wings Airport",
-    }
-    prompt = f"""Create a fictional airport name for a region that used {currency}. 
-Use these examples as inspiration: {examples.get(currency, examples['GBP'])}
-Generate one creative, professional-sounding airport name that fits the regional style. 
-Only return the airport name, nothing else."""
-    return llm_client.generate_text(prompt, max_tokens=50)
+def generate_provider_name() -> str: #can be updated to multiple i suppose
+    return "Microsoft Azure"
 
 
-def make_section_title(llm_client: LLMClient, airport_name: str, category: str) -> str:
-    prompt = f"""Create a professional section title for a charging policy document from {airport_name}. 
-The title should be very concise and clearly indicate the charge category(s). 
-The category is: {category}. 
-Keep it formal and suitable for an official document, no more than 20 words."""
+def make_section_title(llm_client: LLMClient, provider_name: str, category: str) -> str:
+    prompt = f"""Create a professional section title for a cloud pricing policy from {provider_name}.
+The title should be concise and clearly indicate the charge category(s).
+Category: {category}.
+No more than 20 words."""
     return llm_client.generate_text(prompt, max_tokens=20)
 
 
-def generate_document_introduction(llm_client: LLMClient, airport_name: str, currency: str) -> str:
-    prompt = f"""Write a professional introduction for a charging policy document from {airport_name}. 
-This document outlines the airport's fee structure and charging policies for aviation services in {currency}. 
-Keep it formal but welcoming, about 2-3 sentences. Include the airport name and mention this is an official policy document."""
+def generate_document_introduction(llm_client: LLMClient, provider_name: str, currency: str) -> str:
+    prompt = f"""Write a professional introduction for a cloud pricing policy from {provider_name}.
+This document outlines the fee structure and pricing policies for cloud services in {currency}.
+Keep it formal and welcoming, 2–3 sentences. Include the provider name and note this is an official policy document."""
     return llm_client.generate_text(prompt, max_tokens=150)
 
 
-def generate_document_conclusion(llm_client: LLMClient, airport_name: str, currency: str) -> str:
-    prompt = f"""Write a professional conclusion for a charging policy document from {airport_name}. 
-The policies cover various aviation services charged in {currency}. 
-Include contact information for questions. Keep it formal and brief, 2-3 sentences."""
+def generate_document_conclusion(llm_client: LLMClient, provider_name: str, currency: str) -> str:
+    prompt = f"""Write a professional conclusion for a cloud pricing policy from {provider_name}.
+The policies cover various cloud services charged in {currency}.
+Include a brief note on how to contact support for questions. Keep it formal and brief, 2–3 sentences."""
     return llm_client.generate_text(prompt, max_tokens=150)
 
 
@@ -162,22 +160,22 @@ def find_latest_output_json(pattern: str = "output_structure_*.json") -> str:
 def generate_document_from_json(client: LLMClient, output_json_path: str) -> Tuple[str, List[str], List[str]]:
     data = load_generated_charges(output_json_path)
     currency = choose_currency()
-    airport_name = extract_first_paragraph(generate_airport_name(client, currency))
-    introduction = generate_document_introduction(client, airport_name, currency)
-    conclusion = generate_document_conclusion(client, airport_name, currency)
+    provider_name = extract_first_paragraph(generate_provider_name())
+    introduction = generate_document_introduction(client, provider_name, currency)
+    conclusion = generate_document_conclusion(client, provider_name, currency)
 
     charge_names = list(data.keys())
-    titles = [make_section_title(client, airport_name, charge.replace("_", " ").title()) for charge in charge_names]
+    titles = [make_section_title(client, provider_name, charge.replace("_", " ").title()) for charge in charge_names]
     rendered_sections, answers, names = [], [], []
 
     for charge, title in zip(charge_names, titles):
         entry = data[charge]
-        section_html_or_text = decide_charge_format(client, airport_name, entry)
+        section_html_or_text = decide_charge_format(client, provider_name,currency, entry)
         rendered_sections.append(f"## {title}\n\n{section_html_or_text}")
         answers.append(entry.get("code", ""))
         names.append(charge)
 
-    doc = f"# {airport_name} Charging Policy Document\n\n{introduction}\n\n"
+    doc = f"# {provider_name} Cloud Pricing Policy Document\n\n{introduction}\n\n"
     doc += "\n\n".join(rendered_sections)
     doc += f"\n\n{conclusion}\n\n"
     doc += f"**Policy Effective Date:** {datetime.now().strftime('%B %d, %Y')}\n\n"
@@ -197,6 +195,10 @@ def save_document(content: str, filename: str = None) -> str:
     if filename is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(base_dir, f"charging_policy_{timestamp}.md")
+    else:
+        if not os.path.isabs(filename):
+            filename = os.path.join(base_dir, filename)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w", encoding="utf-8") as f:
         f.write(content)
     return filename
@@ -235,6 +237,6 @@ if __name__ == "__main__":
     }
     save_datapoint_to_jsonl(datapoint)
 
-    saved_filename = save_document(document_content, filename=f"synthetic_dataset/document_{run_id}.md")
+    saved_filename = save_document(document_content, filename=f"document_{run_id}.md")
     print(f"Using JSON file: {json_path}")
     print(f"Document saved to {saved_filename}")

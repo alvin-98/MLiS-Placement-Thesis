@@ -1,0 +1,258 @@
+{
+  "compute_vm_fee": {
+    "description": "compute_vm_fee conditions by guest_os and billable_hours:\n\nfor linux the following charges apply:\n  - if billable_hours in [598.4, 744.0), charge is 1.0 \u00d7 billable_hours\n  - if billable_hours in [408.7, 598.4), charge is 2.0 \u00d7 billable_hours\n  - if billable_hours in [216.5, 408.7), charge is 3.0 \u00d7 billable_hours\n  - if billable_hours in [0.0, 216.5), charge is 4.0 \u00d7 billable_hours\nfor windows the following charges apply:\n  - if billable_hours in [598.4, 744.0), charge is 1.1 \u00d7 billable_hours\n  - if billable_hours in [408.7, 598.4), charge is 2.2 \u00d7 billable_hours\n  - if billable_hours in [216.5, 408.7), charge is 3.3 \u00d7 billable_hours\n  - if billable_hours in [0.0, 216.5), charge is 4.4 \u00d7 billable_hours",
+    "code": "def compute_charge(os_type, usage_hours):\n    if os_type == 'linux' and 598.4 <= usage_hours < 744.0: return 1 * usage_hours * 1.0\n    elif os_type == 'linux' and 408.7 <= usage_hours < 598.4: return 2 * usage_hours * 1.0\n    elif os_type == 'linux' and 216.5 <= usage_hours < 408.7: return 3 * usage_hours * 1.0\n    elif os_type == 'linux' and 0.0 <= usage_hours < 216.5: return 4 * usage_hours * 1.0\n    elif os_type == 'windows' and 598.4 <= usage_hours < 744.0: return 1 * usage_hours * 1.1\n    elif os_type == 'windows' and 408.7 <= usage_hours < 598.4: return 2 * usage_hours * 1.1\n    elif os_type == 'windows' and 216.5 <= usage_hours < 408.7: return 3 * usage_hours * 1.1\n    elif os_type == 'windows' and 0.0 <= usage_hours < 216.5: return 4 * usage_hours * 1.1\n    else: raise ValueError(f'os_type or usage_hours is out of expected range')",
+    "variables_used": {
+      "os_type": {
+        "unit": "os",
+        "description": "Operating system for the compute workload",
+        "dtype": "str"
+      },
+      "usage_hours": {
+        "unit": "hours",
+        "description": "Total runtime in hours over the billing window",
+        "dtype": "float"
+      }
+    },
+    "synonyms": [
+      "vm runtime charge",
+      "compute instance fee",
+      "virtual machine cost"
+    ],
+    "charge_description": "Charge for running virtual machines based on vCPU, memory, OS, and commitment."
+  },
+  "gpu_compute_fee": {
+    "description": "if graphics_processor is 'MI300X', charge is 1; if graphics_processor is 'A100', charge is 2; if graphics_processor is 'T4', charge is 3; if graphics_processor is 'A10', charge is 4 The variable 'graphics_processor' is measured in gpu type.",
+    "code": "def compute_charge(gpu_type):\n    if gpu_type == 'MI300X': return 1\n    elif gpu_type == 'A100': return 2\n    elif gpu_type == 'T4': return 3\n    elif gpu_type == 'A10': return 4\n    else: raise ValueError(f'Unknown value for gpu_type: {gpu_type}')",
+    "variables_used": {
+      "gpu_type": {
+        "unit": "gpu type",
+        "description": "Type of GPU accelerator",
+        "dtype": "str"
+      }
+    },
+    "synonyms": [
+      "gpu instance fee",
+      "accelerator charge",
+      "gpu runtime cost"
+    ],
+    "charge_description": "Charge for GPU-enabled compute usage."
+  },
+  "managed_disk_fee": {
+    "description": "if num_disks in [0, 11), charge is 1 \u00d7 num_disks; if num_disks in [11, 34), charge is 2 \u00d7 num_disks; if num_disks in [34, 37), charge is 3 \u00d7 num_disks; if num_disks in [37, 64), charge is 4 \u00d7 num_disks The variable 'num_disks' is measured in disks.",
+    "code": "def compute_charge(managed_disk_count):\n    if 0 <= managed_disk_count < 11: return 1 * managed_disk_count\n    elif 11 <= managed_disk_count < 34: return 2 * managed_disk_count\n    elif 34 <= managed_disk_count < 37: return 3 * managed_disk_count\n    elif 37 <= managed_disk_count < 64: return 4 * managed_disk_count\n    else: raise ValueError(f'managed_disk_count is out of expected range')",
+    "variables_used": {
+      "managed_disk_count": {
+        "unit": "disks",
+        "description": "Count of managed disks attached",
+        "dtype": "int"
+      }
+    },
+    "synonyms": [
+      "disk charge",
+      "managed storage fee",
+      "block storage cost"
+    ],
+    "charge_description": "Charge for managed disks based on type, size, and count."
+  },
+  "data_egress_fee": {
+    "description": "if geo_region is 'uk_south', charge is 1; if geo_region is 'westeurope', charge is 2; if geo_region is 'westus2', charge is 3; if geo_region is 'uk_west', charge is 4; if geo_region is 'eastus', charge is 5; if geo_region is 'northeurope', charge is 6 The variable 'geo_region' is measured in geo_region.",
+    "code": "def compute_charge(region):\n    if region == 'uk_south': return 1\n    elif region == 'westeurope': return 2\n    elif region == 'westus2': return 3\n    elif region == 'uk_west': return 4\n    elif region == 'eastus': return 5\n    elif region == 'northeurope': return 6\n    else: raise ValueError(f'Unknown value for region: {region}')",
+    "variables_used": {
+      "region": {
+        "unit": "region",
+        "description": "Azure region where resources are deployed",
+        "dtype": "str"
+      }
+    },
+    "synonyms": [
+      "egress charge",
+      "outbound data fee",
+      "data transfer out"
+    ],
+    "charge_description": "Charge for data leaving Azure regions."
+  },
+  "data_ingress_fee": {
+    "description": "data_ingress_fee conditions by location and data_transfer_in_gb:\n\nfor uk_south the following charges apply:\n  - if data_transfer_in_gb in [0.0, 51718.2), charge is 1.0 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [51718.2, 84797.2), charge is 2.0 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [84797.2, 100000.0), charge is 3.0 \u00d7 data_transfer_in_gb\nfor uk_west the following charges apply:\n  - if data_transfer_in_gb in [0.0, 51718.2), charge is 1.1 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [51718.2, 84797.2), charge is 2.2 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [84797.2, 100000.0), charge is 3.3 \u00d7 data_transfer_in_gb\nfor westeurope the following charges apply:\n  - if data_transfer_in_gb in [0.0, 51718.2), charge is 1.2 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [51718.2, 84797.2), charge is 2.4 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [84797.2, 100000.0), charge is 3.6 \u00d7 data_transfer_in_gb\nfor northeurope the following charges apply:\n  - if data_transfer_in_gb in [0.0, 51718.2), charge is 1.3 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [51718.2, 84797.2), charge is 2.6 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [84797.2, 100000.0), charge is 3.9 \u00d7 data_transfer_in_gb\nfor eastus the following charges apply:\n  - if data_transfer_in_gb in [0.0, 51718.2), charge is 1.4 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [51718.2, 84797.2), charge is 2.8 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [84797.2, 100000.0), charge is 4.2 \u00d7 data_transfer_in_gb\nfor westus2 the following charges apply:\n  - if data_transfer_in_gb in [0.0, 51718.2), charge is 1.5 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [51718.2, 84797.2), charge is 3.0 \u00d7 data_transfer_in_gb\n  - if data_transfer_in_gb in [84797.2, 100000.0), charge is 4.5 \u00d7 data_transfer_in_gb",
+    "code": "def compute_charge(region, data_ingress_gb):\n    if region == 'uk_south' and 0.0 <= data_ingress_gb < 51718.2: return 1 * data_ingress_gb * 1.0\n    elif region == 'uk_south' and 51718.2 <= data_ingress_gb < 84797.2: return 2 * data_ingress_gb * 1.0\n    elif region == 'uk_south' and 84797.2 <= data_ingress_gb < 100000.0: return 3 * data_ingress_gb * 1.0\n    elif region == 'uk_west' and 0.0 <= data_ingress_gb < 51718.2: return 1 * data_ingress_gb * 1.1\n    elif region == 'uk_west' and 51718.2 <= data_ingress_gb < 84797.2: return 2 * data_ingress_gb * 1.1\n    elif region == 'uk_west' and 84797.2 <= data_ingress_gb < 100000.0: return 3 * data_ingress_gb * 1.1\n    elif region == 'westeurope' and 0.0 <= data_ingress_gb < 51718.2: return 1 * data_ingress_gb * 1.2\n    elif region == 'westeurope' and 51718.2 <= data_ingress_gb < 84797.2: return 2 * data_ingress_gb * 1.2\n    elif region == 'westeurope' and 84797.2 <= data_ingress_gb < 100000.0: return 3 * data_ingress_gb * 1.2\n    elif region == 'northeurope' and 0.0 <= data_ingress_gb < 51718.2: return 1 * data_ingress_gb * 1.3\n    elif region == 'northeurope' and 51718.2 <= data_ingress_gb < 84797.2: return 2 * data_ingress_gb * 1.3\n    elif region == 'northeurope' and 84797.2 <= data_ingress_gb < 100000.0: return 3 * data_ingress_gb * 1.3\n    elif region == 'eastus' and 0.0 <= data_ingress_gb < 51718.2: return 1 * data_ingress_gb * 1.4\n    elif region == 'eastus' and 51718.2 <= data_ingress_gb < 84797.2: return 2 * data_ingress_gb * 1.4\n    elif region == 'eastus' and 84797.2 <= data_ingress_gb < 100000.0: return 3 * data_ingress_gb * 1.4\n    elif region == 'westus2' and 0.0 <= data_ingress_gb < 51718.2: return 1 * data_ingress_gb * 1.5\n    elif region == 'westus2' and 51718.2 <= data_ingress_gb < 84797.2: return 2 * data_ingress_gb * 1.5\n    elif region == 'westus2' and 84797.2 <= data_ingress_gb < 100000.0: return 3 * data_ingress_gb * 1.5\n    else: raise ValueError(f'region or data_ingress_gb is out of expected range')",
+    "variables_used": {
+      "region": {
+        "unit": "region",
+        "description": "Azure region where resources are deployed",
+        "dtype": "str"
+      },
+      "data_ingress_gb": {
+        "unit": "GB",
+        "description": "Inbound data transferred to Azure",
+        "dtype": "float"
+      }
+    },
+    "synonyms": [
+      "ingress charge",
+      "inbound data fee",
+      "data transfer in"
+    ],
+    "charge_description": "Charge for data entering Azure regions where applicable."
+  },
+  "storage_transaction_fee": {
+    "description": "storage_transaction_fee conditions by replication and storage_ops_million:\n\nfor LRS the following charges apply:\n  - if storage_ops_million in [0.0, 225.4), charge is 1.0 \u00d7 storage_ops_million\n  - if storage_ops_million in [225.4, 368.7), charge is 2.0 \u00d7 storage_ops_million\n  - if storage_ops_million in [368.7, 500.0), charge is 3.0 \u00d7 storage_ops_million\nfor ZRS the following charges apply:\n  - if storage_ops_million in [0.0, 225.4), charge is 1.1 \u00d7 storage_ops_million\n  - if storage_ops_million in [225.4, 368.7), charge is 2.2 \u00d7 storage_ops_million\n  - if storage_ops_million in [368.7, 500.0), charge is 3.3 \u00d7 storage_ops_million\nfor GRS the following charges apply:\n  - if storage_ops_million in [0.0, 225.4), charge is 1.2 \u00d7 storage_ops_million\n  - if storage_ops_million in [225.4, 368.7), charge is 2.4 \u00d7 storage_ops_million\n  - if storage_ops_million in [368.7, 500.0), charge is 3.6 \u00d7 storage_ops_million\nfor GZRS the following charges apply:\n  - if storage_ops_million in [0.0, 225.4), charge is 1.3 \u00d7 storage_ops_million\n  - if storage_ops_million in [225.4, 368.7), charge is 2.6 \u00d7 storage_ops_million\n  - if storage_ops_million in [368.7, 500.0), charge is 3.9 \u00d7 storage_ops_million",
+    "code": "def compute_charge(redundancy, storage_transactions_millions):\n    if redundancy == 'LRS' and 0.0 <= storage_transactions_millions < 225.4: return 1 * storage_transactions_millions * 1.0\n    elif redundancy == 'LRS' and 225.4 <= storage_transactions_millions < 368.7: return 2 * storage_transactions_millions * 1.0\n    elif redundancy == 'LRS' and 368.7 <= storage_transactions_millions < 500.0: return 3 * storage_transactions_millions * 1.0\n    elif redundancy == 'ZRS' and 0.0 <= storage_transactions_millions < 225.4: return 1 * storage_transactions_millions * 1.1\n    elif redundancy == 'ZRS' and 225.4 <= storage_transactions_millions < 368.7: return 2 * storage_transactions_millions * 1.1\n    elif redundancy == 'ZRS' and 368.7 <= storage_transactions_millions < 500.0: return 3 * storage_transactions_millions * 1.1\n    elif redundancy == 'GRS' and 0.0 <= storage_transactions_millions < 225.4: return 1 * storage_transactions_millions * 1.2\n    elif redundancy == 'GRS' and 225.4 <= storage_transactions_millions < 368.7: return 2 * storage_transactions_millions * 1.2\n    elif redundancy == 'GRS' and 368.7 <= storage_transactions_millions < 500.0: return 3 * storage_transactions_millions * 1.2\n    elif redundancy == 'GZRS' and 0.0 <= storage_transactions_millions < 225.4: return 1 * storage_transactions_millions * 1.3\n    elif redundancy == 'GZRS' and 225.4 <= storage_transactions_millions < 368.7: return 2 * storage_transactions_millions * 1.3\n    elif redundancy == 'GZRS' and 368.7 <= storage_transactions_millions < 500.0: return 3 * storage_transactions_millions * 1.3\n    else: raise ValueError(f'redundancy or storage_transactions_millions is out of expected range')",
+    "variables_used": {
+      "redundancy": {
+        "unit": "redundancy",
+        "description": "Storage redundancy configuration",
+        "dtype": "str"
+      },
+      "storage_transactions_millions": {
+        "unit": "million tx",
+        "description": "Number of storage account operations in millions",
+        "dtype": "float"
+      }
+    },
+    "synonyms": [
+      "storage ops fee",
+      "transaction charge",
+      "storage request cost"
+    ],
+    "charge_description": "Charge for storage account transactions and redundancy level."
+  },
+  "public_ip_fee": {
+    "description": "public_ip_fee conditions by geo_region and ip_count:\n\nfor uk_south the following charges apply:\n  - if ip_count in [0, 60), charge is 1 \u00d7 ip_count\n  - if ip_count in [60, 100), charge is 2 \u00d7 ip_count\nfor uk_west the following charges apply:\n  - if ip_count in [0, 60), charge is 2 \u00d7 ip_count\n  - if ip_count in [60, 100), charge is 4 \u00d7 ip_count\nfor westeurope the following charges apply:\n  - if ip_count in [0, 60), charge is 3 \u00d7 ip_count\n  - if ip_count in [60, 100), charge is 6 \u00d7 ip_count\nfor northeurope the following charges apply:\n  - if ip_count in [0, 60), charge is 4 \u00d7 ip_count\n  - if ip_count in [60, 100), charge is 8 \u00d7 ip_count\nfor eastus the following charges apply:\n  - if ip_count in [0, 60), charge is 5 \u00d7 ip_count\n  - if ip_count in [60, 100), charge is 10 \u00d7 ip_count\nfor westus2 the following charges apply:\n  - if ip_count in [0, 60), charge is 6 \u00d7 ip_count\n  - if ip_count in [60, 100), charge is 12 \u00d7 ip_count",
+    "code": "def compute_charge(region, public_ip_count):\n    if region == 'uk_south' and 0 <= public_ip_count < 60: return 1 * public_ip_count * 1\n    elif region == 'uk_south' and 60 <= public_ip_count < 100: return 2 * public_ip_count * 1\n    elif region == 'uk_west' and 0 <= public_ip_count < 60: return 1 * public_ip_count * 2\n    elif region == 'uk_west' and 60 <= public_ip_count < 100: return 2 * public_ip_count * 2\n    elif region == 'westeurope' and 0 <= public_ip_count < 60: return 1 * public_ip_count * 3\n    elif region == 'westeurope' and 60 <= public_ip_count < 100: return 2 * public_ip_count * 3\n    elif region == 'northeurope' and 0 <= public_ip_count < 60: return 1 * public_ip_count * 4\n    elif region == 'northeurope' and 60 <= public_ip_count < 100: return 2 * public_ip_count * 4\n    elif region == 'eastus' and 0 <= public_ip_count < 60: return 1 * public_ip_count * 5\n    elif region == 'eastus' and 60 <= public_ip_count < 100: return 2 * public_ip_count * 5\n    elif region == 'westus2' and 0 <= public_ip_count < 60: return 1 * public_ip_count * 6\n    elif region == 'westus2' and 60 <= public_ip_count < 100: return 2 * public_ip_count * 6\n    else: raise ValueError(f'region or public_ip_count is out of expected range')",
+    "variables_used": {
+      "region": {
+        "unit": "region",
+        "description": "Azure region where resources are deployed",
+        "dtype": "str"
+      },
+      "public_ip_count": {
+        "unit": "IPs",
+        "description": "Number of public IP addresses allocated",
+        "dtype": "int"
+      }
+    },
+    "synonyms": [
+      "ip address charge",
+      "public ip cost",
+      "elastic ip fee"
+    ],
+    "charge_description": "Charge for public IP addresses allocated."
+  },
+  "load_balancer_fee": {
+    "description": "if lb_rules in [111, 200), charge is 1 \u00d7 lb_rules; if lb_rules in [0, 111), charge is 2 \u00d7 lb_rules The variable 'lb_rules' is measured in rules.",
+    "code": "def compute_charge(load_balancer_rules):\n    if 111 <= load_balancer_rules < 200: return 1 * load_balancer_rules\n    elif 0 <= load_balancer_rules < 111: return 2 * load_balancer_rules\n    else: raise ValueError(f'load_balancer_rules is out of expected range')",
+    "variables_used": {
+      "load_balancer_rules": {
+        "unit": "rules",
+        "description": "Configured load balancer rules",
+        "dtype": "int"
+      }
+    },
+    "synonyms": [
+      "lb fee",
+      "balancer charge",
+      "traffic distribution cost"
+    ],
+    "charge_description": "Charge for load balancer rules and tier."
+  },
+  "aks_cluster_fee": {
+    "description": "if geo_region is 'westus2', charge is 1; if geo_region is 'northeurope', charge is 2; if geo_region is 'eastus', charge is 3; if geo_region is 'westeurope', charge is 4; if geo_region is 'uk_west', charge is 5; if geo_region is 'uk_south', charge is 6 The variable 'geo_region' is measured in geo_region.",
+    "code": "def compute_charge(region):\n    if region == 'westus2': return 1\n    elif region == 'northeurope': return 2\n    elif region == 'eastus': return 3\n    elif region == 'westeurope': return 4\n    elif region == 'uk_west': return 5\n    elif region == 'uk_south': return 6\n    else: raise ValueError(f'Unknown value for region: {region}')",
+    "variables_used": {
+      "region": {
+        "unit": "region",
+        "description": "Azure region where resources are deployed",
+        "dtype": "str"
+      }
+    },
+    "synonyms": [
+      "kubernetes fee",
+      "aks charge",
+      "container cluster cost"
+    ],
+    "charge_description": "Charge for AKS clusters based on node count and type."
+  },
+  "function_app_fee": {
+    "description": "function_app_fee conditions by geo_region and duration_ms:\n\nfor uk_south the following charges apply:\n  - if duration_ms in [0.1, 99870.2), charge is 1.0 \u00d7 duration_ms\n  - if duration_ms in [99870.2, 600000.0), charge is 2.0 \u00d7 duration_ms\nfor uk_west the following charges apply:\n  - if duration_ms in [0.1, 99870.2), charge is 1.1 \u00d7 duration_ms\n  - if duration_ms in [99870.2, 600000.0), charge is 2.2 \u00d7 duration_ms\nfor westeurope the following charges apply:\n  - if duration_ms in [0.1, 99870.2), charge is 1.2 \u00d7 duration_ms\n  - if duration_ms in [99870.2, 600000.0), charge is 2.4 \u00d7 duration_ms\nfor northeurope the following charges apply:\n  - if duration_ms in [0.1, 99870.2), charge is 1.3 \u00d7 duration_ms\n  - if duration_ms in [99870.2, 600000.0), charge is 2.6 \u00d7 duration_ms\nfor eastus the following charges apply:\n  - if duration_ms in [0.1, 99870.2), charge is 1.4 \u00d7 duration_ms\n  - if duration_ms in [99870.2, 600000.0), charge is 2.8 \u00d7 duration_ms\nfor westus2 the following charges apply:\n  - if duration_ms in [0.1, 99870.2), charge is 1.5 \u00d7 duration_ms\n  - if duration_ms in [99870.2, 600000.0), charge is 3.0 \u00d7 duration_ms",
+    "code": "def compute_charge(region, function_exec_ms):\n    if region == 'uk_south' and 0.1 <= function_exec_ms < 99870.2: return 1 * function_exec_ms * 1.0\n    elif region == 'uk_south' and 99870.2 <= function_exec_ms < 600000.0: return 2 * function_exec_ms * 1.0\n    elif region == 'uk_west' and 0.1 <= function_exec_ms < 99870.2: return 1 * function_exec_ms * 1.1\n    elif region == 'uk_west' and 99870.2 <= function_exec_ms < 600000.0: return 2 * function_exec_ms * 1.1\n    elif region == 'westeurope' and 0.1 <= function_exec_ms < 99870.2: return 1 * function_exec_ms * 1.2\n    elif region == 'westeurope' and 99870.2 <= function_exec_ms < 600000.0: return 2 * function_exec_ms * 1.2\n    elif region == 'northeurope' and 0.1 <= function_exec_ms < 99870.2: return 1 * function_exec_ms * 1.3\n    elif region == 'northeurope' and 99870.2 <= function_exec_ms < 600000.0: return 2 * function_exec_ms * 1.3\n    elif region == 'eastus' and 0.1 <= function_exec_ms < 99870.2: return 1 * function_exec_ms * 1.4\n    elif region == 'eastus' and 99870.2 <= function_exec_ms < 600000.0: return 2 * function_exec_ms * 1.4\n    elif region == 'westus2' and 0.1 <= function_exec_ms < 99870.2: return 1 * function_exec_ms * 1.5\n    elif region == 'westus2' and 99870.2 <= function_exec_ms < 600000.0: return 2 * function_exec_ms * 1.5\n    else: raise ValueError(f'region or function_exec_ms is out of expected range')",
+    "variables_used": {
+      "region": {
+        "unit": "region",
+        "description": "Azure region where resources are deployed",
+        "dtype": "str"
+      },
+      "function_exec_ms": {
+        "unit": "ms",
+        "description": "Average or billed execution time per invocation",
+        "dtype": "float"
+      }
+    },
+    "synonyms": [
+      "faas charge",
+      "functions cost",
+      "serverless fee"
+    ],
+    "charge_description": "Charge for serverless executions and execution time."
+  },
+  "sql_database_fee": {
+    "description": "sql_database_fee conditions by geo_region and backup_days:\n\nfor uk_south the following charges apply:\n  - if backup_days in [0, 33), charge is 1 \u00d7 backup_days\n  - if backup_days in [33, 135), charge is 2 \u00d7 backup_days\n  - if backup_days in [135, 365), charge is 3 \u00d7 backup_days\nfor uk_west the following charges apply:\n  - if backup_days in [0, 33), charge is 2 \u00d7 backup_days\n  - if backup_days in [33, 135), charge is 4 \u00d7 backup_days\n  - if backup_days in [135, 365), charge is 6 \u00d7 backup_days\nfor westeurope the following charges apply:\n  - if backup_days in [0, 33), charge is 3 \u00d7 backup_days\n  - if backup_days in [33, 135), charge is 6 \u00d7 backup_days\n  - if backup_days in [135, 365), charge is 9 \u00d7 backup_days\nfor northeurope the following charges apply:\n  - if backup_days in [0, 33), charge is 4 \u00d7 backup_days\n  - if backup_days in [33, 135), charge is 8 \u00d7 backup_days\n  - if backup_days in [135, 365), charge is 12 \u00d7 backup_days\nfor eastus the following charges apply:\n  - if backup_days in [0, 33), charge is 5 \u00d7 backup_days\n  - if backup_days in [33, 135), charge is 10 \u00d7 backup_days\n  - if backup_days in [135, 365), charge is 15 \u00d7 backup_days\nfor westus2 the following charges apply:\n  - if backup_days in [0, 33), charge is 6 \u00d7 backup_days\n  - if backup_days in [33, 135), charge is 12 \u00d7 backup_days\n  - if backup_days in [135, 365), charge is 18 \u00d7 backup_days",
+    "code": "def compute_charge(region, backup_retention_days):\n    if region == 'uk_south' and 0 <= backup_retention_days < 33: return 1 * backup_retention_days * 1\n    elif region == 'uk_south' and 33 <= backup_retention_days < 135: return 2 * backup_retention_days * 1\n    elif region == 'uk_south' and 135 <= backup_retention_days < 365: return 3 * backup_retention_days * 1\n    elif region == 'uk_west' and 0 <= backup_retention_days < 33: return 1 * backup_retention_days * 2\n    elif region == 'uk_west' and 33 <= backup_retention_days < 135: return 2 * backup_retention_days * 2\n    elif region == 'uk_west' and 135 <= backup_retention_days < 365: return 3 * backup_retention_days * 2\n    elif region == 'westeurope' and 0 <= backup_retention_days < 33: return 1 * backup_retention_days * 3\n    elif region == 'westeurope' and 33 <= backup_retention_days < 135: return 2 * backup_retention_days * 3\n    elif region == 'westeurope' and 135 <= backup_retention_days < 365: return 3 * backup_retention_days * 3\n    elif region == 'northeurope' and 0 <= backup_retention_days < 33: return 1 * backup_retention_days * 4\n    elif region == 'northeurope' and 33 <= backup_retention_days < 135: return 2 * backup_retention_days * 4\n    elif region == 'northeurope' and 135 <= backup_retention_days < 365: return 3 * backup_retention_days * 4\n    elif region == 'eastus' and 0 <= backup_retention_days < 33: return 1 * backup_retention_days * 5\n    elif region == 'eastus' and 33 <= backup_retention_days < 135: return 2 * backup_retention_days * 5\n    elif region == 'eastus' and 135 <= backup_retention_days < 365: return 3 * backup_retention_days * 5\n    elif region == 'westus2' and 0 <= backup_retention_days < 33: return 1 * backup_retention_days * 6\n    elif region == 'westus2' and 33 <= backup_retention_days < 135: return 2 * backup_retention_days * 6\n    elif region == 'westus2' and 135 <= backup_retention_days < 365: return 3 * backup_retention_days * 6\n    else: raise ValueError(f'region or backup_retention_days is out of expected range')",
+    "variables_used": {
+      "region": {
+        "unit": "region",
+        "description": "Azure region where resources are deployed",
+        "dtype": "str"
+      },
+      "backup_retention_days": {
+        "unit": "days",
+        "description": "Backup retention period for databases",
+        "dtype": "int"
+      }
+    },
+    "synonyms": [
+      "sql charge",
+      "database fee",
+      "sql managed instance cost"
+    ],
+    "charge_description": "Charge for Azure SQL based on vCores, storage, and retention."
+  },
+  "snapshot_storage_fee": {
+    "description": "if redundancy_mode is 'ZRS', charge is 1; if redundancy_mode is 'GRS', charge is 2; if redundancy_mode is 'GZRS', charge is 3; if redundancy_mode is 'LRS', charge is 4 The variable 'redundancy_mode' is measured in redundancy_mode.",
+    "code": "def compute_charge(redundancy):\n    if redundancy == 'ZRS': return 1\n    elif redundancy == 'GRS': return 2\n    elif redundancy == 'GZRS': return 3\n    elif redundancy == 'LRS': return 4\n    else: raise ValueError(f'Unknown value for redundancy: {redundancy}')",
+    "variables_used": {
+      "redundancy": {
+        "unit": "redundancy",
+        "description": "Storage redundancy configuration",
+        "dtype": "str"
+      }
+    },
+    "synonyms": [
+      "snapshot fee",
+      "backup snapshot cost",
+      "image snapshot charge"
+    ],
+    "charge_description": "Charge for snapshot storage volume and redundancy."
+  },
+  "app_service_fee": {
+    "description": "app_service_fee conditions by pricing_tier and webapp_instances:\n\nfor basic the following charges apply:\n  - if webapp_instances in [0, 11), charge is 1 \u00d7 webapp_instances\n  - if webapp_instances in [11, 95), charge is 2 \u00d7 webapp_instances\n  - if webapp_instances in [95, 96), charge is 3 \u00d7 webapp_instances\n  - if webapp_instances in [96, 200), charge is 4 \u00d7 webapp_instances\nfor standard the following charges apply:\n  - if webapp_instances in [0, 11), charge is 2 \u00d7 webapp_instances\n  - if webapp_instances in [11, 95), charge is 4 \u00d7 webapp_instances\n  - if webapp_instances in [95, 96), charge is 6 \u00d7 webapp_instances\n  - if webapp_instances in [96, 200), charge is 8 \u00d7 webapp_instances\nfor premium the following charges apply:\n  - if webapp_instances in [0, 11), charge is 3 \u00d7 webapp_instances\n  - if webapp_instances in [11, 95), charge is 6 \u00d7 webapp_instances\n  - if webapp_instances in [95, 96), charge is 9 \u00d7 webapp_instances\n  - if webapp_instances in [96, 200), charge is 12 \u00d7 webapp_instances\nfor isolated the following charges apply:\n  - if webapp_instances in [0, 11), charge is 4 \u00d7 webapp_instances\n  - if webapp_instances in [11, 95), charge is 8 \u00d7 webapp_instances\n  - if webapp_instances in [95, 96), charge is 12 \u00d7 webapp_instances\n  - if webapp_instances in [96, 200), charge is 16 \u00d7 webapp_instances",
+    "code": "def compute_charge(service_tier, app_service_instances):\n    if service_tier == 'basic' and 0 <= app_service_instances < 11: return 1 * app_service_instances * 1\n    elif service_tier == 'basic' and 11 <= app_service_instances < 95: return 2 * app_service_instances * 1\n    elif service_tier == 'basic' and 95 <= app_service_instances < 96: return 3 * app_service_instances * 1\n    elif service_tier == 'basic' and 96 <= app_service_instances < 200: return 4 * app_service_instances * 1\n    elif service_tier == 'standard' and 0 <= app_service_instances < 11: return 1 * app_service_instances * 2\n    elif service_tier == 'standard' and 11 <= app_service_instances < 95: return 2 * app_service_instances * 2\n    elif service_tier == 'standard' and 95 <= app_service_instances < 96: return 3 * app_service_instances * 2\n    elif service_tier == 'standard' and 96 <= app_service_instances < 200: return 4 * app_service_instances * 2\n    elif service_tier == 'premium' and 0 <= app_service_instances < 11: return 1 * app_service_instances * 3\n    elif service_tier == 'premium' and 11 <= app_service_instances < 95: return 2 * app_service_instances * 3\n    elif service_tier == 'premium' and 95 <= app_service_instances < 96: return 3 * app_service_instances * 3\n    elif service_tier == 'premium' and 96 <= app_service_instances < 200: return 4 * app_service_instances * 3\n    elif service_tier == 'isolated' and 0 <= app_service_instances < 11: return 1 * app_service_instances * 4\n    elif service_tier == 'isolated' and 11 <= app_service_instances < 95: return 2 * app_service_instances * 4\n    elif service_tier == 'isolated' and 95 <= app_service_instances < 96: return 3 * app_service_instances * 4\n    elif service_tier == 'isolated' and 96 <= app_service_instances < 200: return 4 * app_service_instances * 4\n    else: raise ValueError(f'service_tier or app_service_instances is out of expected range')",
+    "variables_used": {
+      "service_tier": {
+        "unit": "tier",
+        "description": "Service tier for managed services",
+        "dtype": "str"
+      },
+      "app_service_instances": {
+        "unit": "instances",
+        "description": "Count of App Service instances",
+        "dtype": "int"
+      }
+    },
+    "synonyms": [
+      "app service charge",
+      "web app fee",
+      "app hosting cost"
+    ],
+    "charge_description": "Charge for App Service instances and tier."
+  }
+}
