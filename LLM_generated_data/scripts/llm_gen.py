@@ -86,6 +86,7 @@ Be concise, informative, and suitable for a pricing policy document.
 Charge description: {charge_description}. 
 Be sure to mention the curreny : {currency}
 Return 1–2 paragraphs explaining what the charge covers and its purpose.
+The description should be written in enough detail such that a user could calculate their exact charge from the description
 Do not include disclaimers or additional text."""
     return llm_client.generate_text(prompt, max_tokens=500)
 
@@ -157,7 +158,7 @@ def find_latest_output_json(pattern: str = "output_structure_*.json") -> str:
     return files_sorted[0]
 
 
-def generate_document_from_json(client: LLMClient, output_json_path: str) -> Tuple[str, List[str], List[str]]:
+def generate_document_from_json(client: LLMClient, output_json_path: str) -> Tuple[str, List[str], List[str], Dict[str, Any]]:
     data = load_generated_charges(output_json_path)
     currency = choose_currency()
     provider_name = extract_first_paragraph(generate_provider_name())
@@ -170,7 +171,7 @@ def generate_document_from_json(client: LLMClient, output_json_path: str) -> Tup
 
     for charge, title in zip(charge_names, titles):
         entry = data[charge]
-        section_html_or_text = decide_charge_format(client, provider_name,currency, entry)
+        section_html_or_text = decide_charge_format(client, provider_name, currency, entry)
         rendered_sections.append(f"## {title}\n\n{section_html_or_text}")
         answers.append(entry.get("code", ""))
         names.append(charge)
@@ -179,7 +180,8 @@ def generate_document_from_json(client: LLMClient, output_json_path: str) -> Tup
     doc += "\n\n".join(rendered_sections)
     doc += f"\n\n{conclusion}\n\n"
     doc += f"**Policy Effective Date:** {datetime.now().strftime('%B %d, %Y')}\n\n"
-    return doc, answers, names
+    return doc, answers, names, data  
+
 
 
 def create_charge_answer_pair(answers: List[str], variables: List[str]) -> Tuple[str, str]:
@@ -204,7 +206,7 @@ def save_document(content: str, filename: str = None) -> str:
     return filename
 
 
-def save_datapoint_to_jsonl(datapoint: Dict[str, Any], filename: str = None):
+def save_datapoint_to_jsonl(datapoint: Any, filename: str = None):
     base_dir = os.path.join("LLM_generated_data", "synthetic_dataset")
     os.makedirs(base_dir, exist_ok=True)
     if filename is None:
@@ -225,17 +227,19 @@ if __name__ == "__main__":
         json_path = find_latest_output_json()
 
     client = LLMClient(model_name='meta-llama/Meta-Llama-3.1-8B-Instruct')
-    document_content, answers, names = generate_document_from_json(client, json_path)
+    # 3) Capture `source_dict` from the generator
+    document_content, answers, names, source_dict = generate_document_from_json(client, json_path)
 
+    # (You can keep target/charge_type logic if you still need it elsewhere)
     target, charge_type = create_charge_answer_pair(answers, names)
+
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    datapoint = {
-        "charge_type": charge_type,
-        "document": document_content,
-        "target": target,
-        "document_id": run_id,
-    }
-    save_datapoint_to_jsonl(datapoint)
+
+    # 4) Build the exact structure requested: [document, dict]
+    datapoint_list = [document_content, source_dict]
+
+    # 5) Save the list to JSONL (one list per line)
+    save_datapoint_to_jsonl(datapoint_list)
 
     saved_filename = save_document(document_content, filename=f"document_{run_id}.md")
     print(f"Using JSON file: {json_path}")
