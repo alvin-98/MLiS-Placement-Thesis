@@ -32,6 +32,7 @@ import sympy
 from sympy import Symbol, Piecewise, sympify, Add, Mul, Pow
 
 import os
+import re
 os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5,6"
 
 # MODEL_ID = "Qwen/Qwen3-30B-A3B"
@@ -116,7 +117,13 @@ class Units(str, Enum):
 
 class ValueNode(BaseModel):
     type: Literal["VALUE"] = "VALUE"
-    value: float
+    value: Union[float, int, str]
+    description: str
+    unit: Units
+
+class CategoricalValueNode(BaseModel):
+    type: Literal["CATEGORICAL_VALUE_NODE"] = "CATEGORICAL_VALUE_NODE"
+    value: str
     description: str
     unit: Units
 
@@ -151,6 +158,7 @@ class ConditionalNode(BaseModel):
 
 AnyNode = Union[
     ValueNode, 
+    CategoricalValueNode,
     VariableNode, 
     BinaryOpNode, 
     ConditionalNode
@@ -211,7 +219,10 @@ def create_graph_with_cot(llm, allowed_variables_prompt, document, query, output
         You MUST think step-by-step and reason before generating the final JSON.
         
         **Reasoning Guidelines:**
-        1.  **Analyze Query Parameters:** Identify all relevant parameters from the user's query. For each parameter, create a structured object specifying its 'name', its 'status' ('KNOWN' if the value is given, or 'SYMBOLIC' if it's a variable), and its 'value' (or null if symbolic). For example: `[ {{"name": "aircraft_stand_type", "status": "KNOWN", "value": "Wide Remote"}}, {{"name": "parking_duration_hours", "status": "SYMBOLIC", "value": null}} ]`
+        1.  **Analyze Query Parameters (Coverage Required):** Enumerate EVERY variable listed in the 'Allowed Variables' section below. For each variable, output an object with fields: 'name', 'status' ('KNOWN' if the query provides a concrete value; 'SYMBOLIC' otherwise), and 'value' (present only when status is 'KNOWN', null when 'SYMBOLIC').
+            - If a variable is categorical (string-valued), you must still include it. Do NOT assume a default category when it is not provided; mark it 'SYMBOLIC'.
+            - Do NOT introduce variables that are not in the Allowed Variables list.
+            Example: `[ {{"name": "aircraft_stand_type", "status": "KNOWN", "value": "Wide Remote"}}, {{"name": "parking_duration_hours", "status": "SYMBOLIC", "value": null}} ]`
         **Allowed Variables for this Task:**
         ---
         {allowed_variables_prompt}
@@ -222,6 +233,16 @@ def create_graph_with_cot(llm, allowed_variables_prompt, document, query, output
 
         **Crucial Rule 1:** If a parameter from the 'Allowed Variables' list is given a specific value in the query, you MUST treat it as a fixed value to find constants. You MUST NOT include it as a `VARIABLE` node in the final JSON.
         **Crucial Rule 2**: If a calculation path or value depends on the value of a symbolic variable, you MUST capture the rules for all possible values and represent this logic using CONDITIONAL nodes in the final expression tree. You MUST NOT assume a default value for the variable to simplify the logic.
+        **Crucial Rule 3 (Categorical Variables)**: Variables whose domain is categorical (e.g., string-valued like 'flight_type', 'stand_type') must be handled explicitly.
+            - If the query supplies a category, treat it as fixed (per Rule 1).
+            - If the query does not supply a category, mark the variable as 'SYMBOLIC' in Step 1 and ensure the final expression covers all category-dependent branches stated in the document using `CONDITIONAL` nodes. Do NOT assume a default category. Always use `CATEGORICAL_VALUE_NODE` for category constants.
+            - Ensure every variable in the Allowed Variables list appears in Step 1 with a status of KNOWN or SYMBOLIC.
+            - Encoding guidance: when checking a categorical branch, use a `COMPARISON` node with operator `EQUAL_TO`, `left` as a `VARIABLE` node for the categorical variable, and `right` as a `CATEGORICAL_VALUE_NODE` whose `value` is the category string (e.g., "International").
+
+        **Crucial Rule 4 (Numeric vs Categorical Comparisons)**:
+            - Numeric variables must be compared against numeric `VALUE` nodes whose `value` is a number.
+            - Categorical variables must be compared against `CATEGORICAL_VALUE_NODE` nodes whose `value` is the category string.
+            - Do NOT compare a categorical variable to a numeric `VALUE` node, and do NOT compare a numeric variable to a `CATEGORICAL_VALUE_NODE`.
         
         After writing your reasoning, you WILL generate the JSON object.
 
@@ -317,8 +338,16 @@ class ComputationGraphBuilder:
 
         # 3. Create a formatted prompt string of allowed variables for the LLM
         allowed_variables = [el.value for el in list(Var)]
+        def _var_type(v):
+            try:
+                return "CATEGORICAL" if v.data_type is str else "NUMERIC"
+            except Exception:
+                return "UNKNOWN"
         allowed_variables_prompt = "\n".join(
-            [f"- **{v.name}**: {v.description}" for name, v in all_variables.items() if name in allowed_variables]
+            [
+                f"- **{v.name}** | type: {_var_type(v)} | unit: {v.unit} — {v.description}"
+                for name, v in all_variables.items() if name in allowed_variables
+            ]
         )
 
         try:
@@ -356,7 +385,17 @@ def compose_expression(node: dict):
     node_type = node.get('type')
 
     if node_type == "VALUE":
-        return sympify(node['value'])
+        val = node['value']
+        # VALUE should represent numeric constants; allow numeric sympification
+        return sympify(val)
+
+    elif node_type in ("CATEGORICAL_VALUE_NODE", "CATEGORICAL_VALUE"):
+        # Map raw category strings to valid SymPy Symbols for safe equality checks
+        val = node['value']
+        sanitized = re.sub(r"\W+", "_", str(val)).strip("_")
+        if not sanitized:
+            sanitized = "_VAL"
+        return Symbol(sanitized)
 
     elif node_type == "VARIABLE":
         return Symbol(node['name'])
@@ -385,8 +424,16 @@ def compose_expression(node: dict):
 
         if operator == "GREATER_THAN":
             return left > right
-        if operator == "LESS_THAN":
+        elif operator == "LESS_THAN":
             return left < right
+        elif operator == "EQUAL_TO":
+            return sympy.Eq(left, right, evaluate=False)
+        elif operator == "NOT_EQUAL_TO":
+            return sympy.Ne(left, right, evaluate=False)
+        elif operator == "LESS_THAN_OR_EQUAL_TO":
+            return sympy.Le(left, right, evaluate=False)
+        elif operator == "GREATER_THAN_OR_EQUAL_TO":
+            return sympy.Ge(left, right, evaluate=False)
         else:
             raise ValueError(f"Unsupported comparison operator: {operator}")
 
