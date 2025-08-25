@@ -13,6 +13,16 @@ rm -rf ~/.triton ~/.cache/triton
 
 python -m sglang.launch_server --model-path Qwen/Qwen3-30B-A3B-Instruct-2507 --context-length 262144 --tp 2
 
+A40s-
+
+python -m sglang.launch_server \
+  --model-path Qwen/Qwen3-30B-A3B-Instruct-2507 \
+  --tp 4 \
+  --context-length 262144 \
+  --kv-cache-dtype fp8_e5m2 \
+  --attention-backend triton
+
+and parallelize to make concurrent requests and super fast tokens / second
 
 import os
 import shutil
