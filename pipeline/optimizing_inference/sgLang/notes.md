@@ -22,6 +22,39 @@ python -m sglang.launch_server \
   --kv-cache-dtype fp8_e5m2 \
   --attention-backend triton
 
+
+  python -m sglang.launch_server \
+  --model-path Qwen/Qwen3-14B \
+  --tp 4 \
+  --attention-backend triton \
+  --chat-template ./qwen3_nonthinking.jinja
+
+
+
+
+  python -m sglang.launch_server \
+  --model-path Qwen/Qwen3-0.6B \
+  --tp 4 \
+  --attention-backend triton \
+  --chat-template ./qwen3_nonthinking.jinja
+
+Qwen/Qwen3-4B-Instruct-2507
+
+  python -m sglang.launch_server \
+  --model-path Qwen/Qwen3-4B-Instruct-2507 \
+  --tp 4 \
+  --attention-backend triton
+
+
+python -m sglang.launch_server --model-path Qwen/Qwen3-4B-Instruct-2507 --context-length 262144
+
+python -m sglang.launch_server --model-path Qwen/Qwen3-8B --chat-template ./qwen3_nonthinking.jinja
+
+Qwen/Qwen3-14B
+
+python -m sglang.launch_server --model-path Qwen/Qwen3-14B --tp 2 --chat-template ./qwen3_nonthinking.jinja
+
+
 and parallelize to make concurrent requests and super fast tokens / second
 
 import os
