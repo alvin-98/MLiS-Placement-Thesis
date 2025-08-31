@@ -4,86 +4,16 @@ import itertools
 from typing import Dict, List, Any, Tuple, Union
 from datetime import datetime
 import os
+from pricing_structs import CHARGES, VARIABLES
 
-CHARGES = {
-    "security_fee": {
-        "description": "A fee charged for security measures at the airport.",
-        "variables": ["aircraft_weight", "passenger_count", "baggage_weight"],
-        "synonyms": ["security charge", "safety fee"],
-    },
-    "landing_fee": {
-        "description": "A fee charged for landing the aircraft at the airport.",
-        "variables": ["aircraft_weight", "passenger_count", "fuel_consumption", "baggage_weight", "aircraft_type", "flight_type"],
-        "synonyms": ["landing charge", "arrival fee"],
-    },
-    "fuel_tax": {
-        "description": "A tax applied to the fuel consumed by the aircraft.",
-        "variables": ["fuel_consumption", "aircraft_weight", "flight_type"],
-        "synonyms": ["fuel charge", "fuel levy"],
-    },
-    "baggage_fee": {
-        "description": "A fee charged for the baggage carried by passengers.",
-        "variables": ["baggage_weight", "aircraft_type"],
-        "synonyms": ["luggage charge", "baggage levy"],
-    },
-    "passenger_service_fee": {
-        "description": "A fee charged for services provided to passengers at the airport.",
-        "variables": ["passenger_count", "aircraft_type", "flight_type"],
-        "synonyms": ["passenger charge", "service fee"],
-    },
-    "airport_facility_fee": {
-        "description": "A fee charged for the use of airport facilities.",
-        "variables": ["aircraft_type", "flight_type"],
-        "synonyms": ["facility charge", "airport usage fee"],
-    }
-}
-
-VARIABLES = {
-    "aircraft_weight": {
-        "dtype": float,
-        "values": (5000.0, 400000.0),
-        "units": "kg",
-        "alternative_names": ["aircraft mass", "plane weight"]
-    },
-    "passenger_count": {
-        "dtype": int,
-        "values": (10, 500),
-        "units": "passengers",
-        "alternative_names": ["passenger number", "traveler count"]
-    },
-    "fuel_consumption": {
-        "dtype": float,
-        "values": (500.0, 5000.0),
-        "units": "liters",
-        "alternative_names": ["fuel usage", "fuel burn"]
-    },
-    "baggage_weight": {
-        "dtype": float,
-        "values": (5.0, 50.0),
-        "units": "kg",
-        "alternative_names": ["luggage weight", "baggage mass"]
-    },
-    "aircraft_type": {
-        "dtype": str,
-        "values": ["passenger", "cargo", "private", "military"],
-        "units": "aircraft type",
-        "alternative_names": ["plane type", "aircraft category"]
-    },
-    "flight_type": {
-        "dtype": str,
-        "values": ["domestic", "international", "charter"],
-        "units": "flight type",
-        "alternative_names": ["flight category", "flight class"]
-    },
-}
 
 def create_categorical_conditions(var_name: str, values: List[str]) -> Tuple[str, str]:
     shuffled_values = random.sample(values, len(values))
     body_lines = []
     description_clauses = []
     for idx, val in enumerate(shuffled_values):
-        line = f"{'if' if idx == 0 else 'elif'} {var_name} == '{val}': return {idx}"
-        description = f"if {var_name} is '{val}', charge is {idx}"
+        line = f"{'if' if idx == 0 else 'elif'} {var_name} == '{val}': return {idx+1}"
+        description = f"if {var_name} is '{val}', charge is {idx+1}"
         body_lines.append(f"    {line}")
         description_clauses.append(description)
     body_lines.append(f"    else: raise ValueError(f'Unknown value for {var_name}: {{{var_name}}}')")
@@ -116,9 +46,9 @@ def create_numeric_conditions(
         upper = max(split_bounds[idx], split_bounds[idx+1])
         lower_str = fmt(lower)
         upper_str = fmt(upper)
-        line = f"{'if' if idx == 0 else 'elif'} {lower_str} <= {var_name} < {upper_str}: return {idx} * {var_name}"
+        line = f"{'if' if idx == 0 else 'elif'} {lower_str} <= {var_name} < {upper_str}: return {idx+1} * {var_name}"
         body_lines.append(f"    {line}")
-        description_clauses.append(f"if {var_name} in [{lower_str}, {upper_str}), charge is {idx} × {var_name}")
+        description_clauses.append(f"if {var_name} in [{lower_str}, {upper_str}), charge is {idx+1} × {var_name}")
     body_lines.append(f"    else: raise ValueError(f'{var_name} is out of expected range')")
     function_code = f"def compute_charge({var_name}):\n" + "\n".join(body_lines)
     full_description = "; ".join(description_clauses)
@@ -156,11 +86,11 @@ def create_two_variable_conditions(
             upper = max(split_bounds[idx], split_bounds[idx+1])
             lower_str = fmt(lower)
             upper_str = fmt(upper)
-            charge_str = round(idx * multiplier, 2) if cont_dtype == float else int(idx * multiplier)
+            charge_str = round((1+idx) * multiplier, 2) if cont_dtype == float else int((1+idx) * multiplier)
             condition_line = (
                 f"{'if' if idx == 0 and outer_idx == 0 else 'elif'} "
                 f"{cat_var} == '{val}' and {lower_str} <= {cont_var} < {upper_str}: "
-                f"return {idx} * {cont_var} * {multiplier}"
+                f"return {idx+1} * {cont_var} * {multiplier}"
             )
             description_line = (
                 f"  - if {cont_var} in [{lower_str}, {upper_str}), charge is {charge_str} × {cont_var}"
@@ -182,7 +112,8 @@ def handle_variable(name: str) -> Tuple[str, str]:
     units = var["units"]
     if dtype == str:
         code, description = create_categorical_conditions(name, values)
-        # omit units sentence for categoricals to avoid awkward phrasing
+        if units:
+            description += f" The variable '{name}' is measured in {units}."
     elif dtype in (int, float):
         code, description = create_numeric_conditions(name, values, dtype)
         if units:
@@ -199,7 +130,6 @@ def handle_two_variable_condition(charge_name: str, cat_var: str, cont_var: str)
     if cat_dtype != str or cont_dtype not in (float, int):
         raise ValueError(f"Unsupported variable types: {cat_var} ({cat_dtype}), {cont_var} ({cont_dtype})")
     body, description = create_two_variable_conditions(charge_name, cat_var, cont_var, cat_vals, cont_vals)
-    # wrap into a full function for consistency with single-variable path
     code = f"def compute_charge({cat_var}, {cont_var}):\n    " + body.replace("\n", "\n    ")
     return description, code, [cat_var, cont_var]
 
@@ -213,7 +143,21 @@ def modify_description(description: str, var_name: Union[str, List[str], Tuple[s
             description = description.replace(var, alt_name)
         return description
 
-def select_and_handle_variables(charge_name: str) -> Tuple[str, str, List[str]]:
+def variable_metadata(name: str) -> Dict[str, Any]:
+    """Return metadata for a single variable suitable for JSON output."""
+    v = VARIABLES[name]
+    return {
+        "unit": v.get("units"),                 
+        "description": v.get("description"),
+        "dtype": v["dtype"].__name__,           
+    }
+
+def build_used_vars_dict(names: List[str]) -> Dict[str, Dict[str, Any]]:
+    """Convert a list of variable names into a dict {var_name: metadata}."""
+    return {n: variable_metadata(n) for n in names}
+
+
+def select_and_handle_variables(charge_name: str, two_var_chance: float = 0.5) -> Tuple[str, str, List[str]]:
     if charge_name not in CHARGES:
         raise ValueError(f"Charge '{charge_name}' not found in CHARGES.")
     variables = CHARGES[charge_name]["variables"]
@@ -226,7 +170,7 @@ def select_and_handle_variables(charge_name: str) -> Tuple[str, str, List[str]]:
         dtype2 = VARIABLES[v2]["dtype"]
         if (dtype1 == str and dtype2 in (int, float)) or (dtype2 == str and dtype1 in (int, float)):
             valid_pairs.append((v1, v2))
-    if valid_pairs:
+    if valid_pairs and random.random() < two_var_chance:
         cat_var, cont_var = random.choice(valid_pairs)
         if VARIABLES[cat_var]["dtype"] != str:
             cat_var, cont_var = cont_var, cat_var
@@ -244,7 +188,7 @@ def generate_output_structure() -> Dict[str, Any]:
         output_structure[charge_name] = {
             "description": desc,
             "code": code,
-            "variables_used": used_vars,
+            "variables_used": build_used_vars_dict(used_vars),  # now a subdictionary
             "synonyms": charge_info.get("synonyms", []),
             "charge_description": charge_info["description"],
         }
@@ -253,9 +197,8 @@ def generate_output_structure() -> Dict[str, Any]:
 if __name__ == "__main__":
     output_structure = generate_output_structure()
 
-    # Generate an identifier like 2025-08-08_11-42-05
+    # Use a run_id for the filename only, not in the JSON payload
     run_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    output_structure["run_id"] = run_id
 
     # Ensure target folder exists
     save_dir = "LLM_generated_data/synthetic_dataset"
@@ -266,4 +209,3 @@ if __name__ == "__main__":
         json.dump(output_structure, f, indent=2)
 
     print(f"Saved output structure to {save_path}")
-

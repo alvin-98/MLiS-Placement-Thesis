@@ -73,7 +73,7 @@ def evaluate_model(device, batch_size,dataset,max_iterations,n_runs):
                             'style': get_prompt_style(idx),
                             'iterations': k,
                             'broken': Broken,
-                            'judgement': str_scores,
+                            'judgements': str_scores,
                             'full_history': formatted_messages
                         }
                         df_rows.append(final_row)
