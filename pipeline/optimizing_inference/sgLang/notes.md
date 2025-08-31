@@ -13,6 +13,9 @@ rm -rf ~/.triton ~/.cache/triton
 
 python -m sglang.launch_server --model-path Qwen/Qwen3-30B-A3B-Instruct-2507 --context-length 262144 --tp 2
 
+ ss -ltnp | grep :30000
+ kill -KILL PROCESS_ID
+
 A40s-
 
 python -m sglang.launch_server \
