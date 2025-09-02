@@ -1,0 +1,15 @@
+1. @_openai_base.py file in this folder was modified to capture and allow the free form reasoning tokens emitted by sglang served Qwen3 thinking model 
+2. @_sglang.py file in this folder in present in the current nightly version of guidance, however, not in the version that works on HPC. Including it allows us to load the sglang served model in online inference model and use guidance package to perform constrained decoding. 
+    2.1 This is important for another reason that for our use case, strict schema conformance should be avoided as we have self-referential structures in our schema, and any strict compilation fails. The llguidance backend constrained decoding available through the sglang library by default performs a strict schema validation and therefore not suitable for our purposes. 
+3. @qwen3_nonthinking.jinja file in this folder is downloaded from huggingface allows us to serve Qwen3 models like 8B and 14B version which has an option to switch between non-thinking and thinking modes. We do this to disable thinking completely and benchmark these models using structure driven reasoning.
+    3.1 This file simply needs to be placed in the directory from where you run sglang online inference.
+4. @load.sh file in this folder is a script to load the required toolchains and environment variables for sglang online inference.
+5. @requirements.txt file in this folder is a list of dependencies required to run sglang online inference.
+6. `export VLLM_WORKER_MULTIPROC_METHOD=spawn` - This additional line if added in @load.sh file allows us to use multigpu inferencing with vllm. 
+7. @requirements_vllm.txt file in this folder is a list of dependencies required to run vllm online inference.
+8. Serving models: 
+    8.1 python -m sglang.launch_server --model-path Qwen/Qwen3-30B-A3B-Instruct-2507 --context-length 262144 --tp 2
+    8.2 vllm serve Qwen/Qwen3-30B-A3B-Instruct-2507  --port 8000 --tensor-parallel-size 4
+    8.3 `ss -ltnp | grep :30000` and then `kill -KILL PROCESS_ID` to free up port if inference server crashes
+    8.4 `python -m sglang.launch_server --model-path Qwen/Qwen3-30B-A3B-Instruct-2507 --tp 4 --context-length 262144 --kv-cache-dtype fp8_e5m2 --attention-backend triton` for inference on A40s compchemq
+    8.5 `python -m sglang.launch_server --model-path Qwen/Qwen3-14B --tp 4 --attention-backend triton --chat-template ./qwen3_nonthinking.jinja` for inferencing Qwen3 14B with non-thinking mode
