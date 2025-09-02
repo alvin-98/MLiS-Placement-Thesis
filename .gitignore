@@ -23,4 +23,5 @@ Deepseek-70B
 slurm-*.out
 Personal
 qwen-235b-4bit/
+download_model.py
 
