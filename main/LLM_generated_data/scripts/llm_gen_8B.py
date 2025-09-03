@@ -93,7 +93,6 @@ Do not include disclaimers or additional text."""
 
 def decide_charge_format(llm_client: LLMClient, provider_name: str,currency: str, entry: Dict[str, Any], table_chance: float = 0.7) -> str:
     desc = entry["description"]
-    # variables_used is now a dict like {var_name: {unit, description, dtype}}
     used_meta = entry.get("variables_used", {}) or {}
     used_count = len(used_meta) if isinstance(used_meta, dict) else len(used_meta)
     want_table = used_count > 1 or random.random() < table_chance
@@ -227,20 +226,18 @@ if __name__ == "__main__":
         json_path = find_latest_output_json()
 
     client = LLMClient(model_name='meta-llama/Meta-Llama-3.1-8B-Instruct')
-    # 3) Capture `source_dict` from the generator
+
     document_content, answers, names, source_dict = generate_document_from_json(client, json_path)
 
-    # (You can keep target/charge_type logic if you still need it elsewhere)
     target, charge_type = create_charge_answer_pair(answers, names)
 
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # 4) Build the exact structure requested: [document, dict]
+
     datapoint_list = [document_content, source_dict]
 
-    # 5) Save the list to JSONL (one list per line)
-    save_datapoint_to_jsonl(datapoint_list)
-
+    #save_datapoint_to_jsonl(datapoint_list)
+    save_document(document_content)
     saved_filename = save_document(document_content, filename=f"document_{run_id}.md")
     print(f"Using JSON file: {json_path}")
     print(f"Document saved to {saved_filename}")

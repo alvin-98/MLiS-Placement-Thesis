@@ -12,24 +12,19 @@ from prompts import one_shot_example_1, one_shot_example_2, one_shot_example_3
 
 
 class LLMClient:
-    """
-    Simple client for interacting with HF models, with safe defaults for large models.
-    - quantization: "4bit" (best for 1x80GB), "8bit", or None (use offload or multi-GPU)
-    - model_name_or_path: repo id OR local folder (recommended: local folder you downloaded)
-    """
+
     def __init__(
         self,
         model_name: str = "meta-llama/Meta-Llama-3.1-70B-Instruct",
-        quantization: str = "4bit",           # "4bit" | "8bit" | None
-        local_only: bool = True,              # use local cache/files only
-        device_map: str = "auto",             # let HF place weights across devices
-        offload_folder: str | None = None,    # e.g., "/gpfs01/scratch/$USER/offload-70b" (for None/8bit)
+        quantization: str = "4bit",           
+        local_only: bool = True,              
+        device_map: str = "auto",             
+        offload_folder: str | None = None,   
     ):
-        # Tokenizer (safe offline)
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_name,
             local_files_only=local_only,
-            use_fast=False,                   # Llama tokenizers are often non-fast
+            use_fast=False,                  
         )
 
         model_kwargs = dict(
@@ -38,7 +33,6 @@ class LLMClient:
             low_cpu_mem_usage=True,
         )
 
-        # Choose quantization / offload strategy
         if quantization == "4bit":
             bnb_cfg = BitsAndBytesConfig(
                 load_in_4bit=True,
@@ -53,19 +47,15 @@ class LLMClient:
             model_kwargs["quantization_config"] = bnb_cfg
 
         else:
-            # Full-precision/bf16 path (does NOT fit in 1x80GB without offload)
             model_kwargs["torch_dtype"] = torch.bfloat16
             if offload_folder:
-                model_kwargs["offload_folder"] = offload_folder  # CPU/GPU offload
-            # Otherwise expect multiple GPUs for sharding
+                model_kwargs["offload_folder"] = offload_folder  
 
-        # Important: do NOT .to(device); let device_map/quant handle placement
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             **model_kwargs,
         )
 
-        # Pipeline can use the already-placed model (no device arg needed)
         self.generator = pipeline(
             "text-generation",
             model=self.model,
@@ -78,9 +68,9 @@ class LLMClient:
         max_tokens: int = 200,
         temperature: float = 0.7,
         top_p: float = 0.9,
-        stop_at: list[str] | None = None,   # e.g., ["</table>"] to clamp HTML tables
+        stop_at: list[str] | None = None,   
     ) -> str:
-        # 1) System message
+
         system_prompt = (
             "You are a professional assistant trained to generate policy documentation and HTML tables for cloud pricing documents. "
             "You always follow instructions precisely and do not include any explanation, commentary, or additional text beyond what is requested. "
@@ -96,15 +86,13 @@ class LLMClient:
             {"role": "user", "content": prompt},
         ]
 
-        # 2) Build a chat prompt using the model's template (string form)
+
         chat_prompt = self.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
 
-        # 3) Tokenize once; we’ll use model.generate() directly for precise slicing
-        #    (more reliable than string-slicing pipeline output)
+
         if getattr(self.tokenizer, "pad_token_id", None) is None:
-            # Llama tokenizers often have no pad_token; align to eos to avoid warnings
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
         inputs = self.tokenizer(
@@ -113,8 +101,6 @@ class LLMClient:
             add_special_tokens=False,
         )
 
-        # Move to the same device(s) as the model without collapsing placement.
-        # If the model is sharded (device_map="auto"), .generate handles it; just send inputs to the first device.
         first_device = next(self.model.parameters()).device
         for k in inputs:
             inputs[k] = inputs[k].to(first_device)
@@ -131,11 +117,9 @@ class LLMClient:
             repetition_penalty=1.05,
         )
 
-        # 4) Slice out ONLY the newly generated tokens
         new_tokens = gen_ids[0, inputs["input_ids"].shape[1]:]
         output_text = self.tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
 
-        # 5) Optional hard stop trimming (useful for HTML tables)
         if stop_at:
             lower = output_text.lower()
             cut = None
@@ -156,7 +140,7 @@ def extract_table(html_str: str) -> str:
 
 
 def generate_document_table(llm_client: LLMClient, provider_name: str, currency:str, charge_description: str, max_retries: int = 3) -> str:
-    if random.random() < 0.5: # add more variety to tables with two different options
+    if random.random() < 0.5: 
         one_shot_example = one_shot_example_1
     else:
         one_shot_example = one_shot_example_2
@@ -192,7 +176,6 @@ Do not include disclaimers or additional text."""
 
 def decide_charge_format(llm_client: LLMClient, provider_name: str,currency: str, entry: Dict[str, Any], table_chance: float = 0.7) -> str:
     desc = entry["description"]
-    # variables_used is now a dict like {var_name: {unit, description, dtype}}
     used_meta = entry.get("variables_used", {}) or {}
     used_count = len(used_meta) if isinstance(used_meta, dict) else len(used_meta)
     want_table = used_count > 1 or random.random() < table_chance
@@ -202,7 +185,7 @@ def decide_charge_format(llm_client: LLMClient, provider_name: str,currency: str
     return generate_charge_description(llm_client, provider_name, currency, desc)
 
 
-def generate_provider_name() -> str: #can be updated to multiple i suppose
+def generate_provider_name() -> str: 
     return "Microsoft Azure"
 
 
@@ -326,18 +309,14 @@ if __name__ == "__main__":
         json_path = find_latest_output_json()
 
     client = LLMClient(model_name='Meta-Llama-3.1-70B-Instruct')
-    # 3) Capture `source_dict` from the generator
     document_content, answers, names, source_dict = generate_document_from_json(client, json_path)
 
-    # (You can keep target/charge_type logic if you still need it elsewhere)
     target, charge_type = create_charge_answer_pair(answers, names)
 
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # 4) Build the exact structure requested: [document, dict]
     datapoint_list = [document_content, source_dict]
 
-    # 5) Save the list to JSONL (one list per line)
     save_datapoint_to_jsonl(datapoint_list)
 
     saved_filename = save_document(document_content, filename=f"document_{run_id}.md")

@@ -31,7 +31,6 @@ def load_4bit(model_name_or_path: str, local_only: bool = False):
         bnb_4bit_compute_dtype=torch.bfloat16,
     )
 
-    # Model (do NOT .to(device); let device_map place it)
     model = AutoModelForCausalLM.from_pretrained(
         model_name_or_path,
         local_files_only=local_only,
@@ -51,7 +50,7 @@ def generate_completions(
     do_sample: bool,
     temperature: float,
     max_samples=None,
-    batch_size: int = 1,          # 70B-4bit: keep batch small
+    batch_size: int = 1,          
     num_generations: int = 5,
     local_only: bool = False,
 ):
@@ -72,7 +71,7 @@ def generate_completions(
         prompts.append(prompt)
         metadata.append((ex["category"], ex["prompt"]))
 
-    # Use the first param’s device for inputs (model may be sharded across devices)
+
     first_device = next(model.parameters()).device
 
     for i in tqdm(range(0, len(prompts), batch_size), desc=f"{model_name} Generation Progress"):
@@ -100,7 +99,6 @@ def generate_completions(
                 use_cache=True,
                 repetition_penalty=1.05,
             )
-            # Slice out only the new tokens
             new_tokens = gen_ids[:, input_len:]
             decoded = tokenizer.batch_decode(new_tokens, skip_special_tokens=True)
 

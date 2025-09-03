@@ -188,7 +188,7 @@ def generate_output_structure() -> Dict[str, Any]:
         output_structure[charge_name] = {
             "description": desc,
             "code": code,
-            "variables_used": build_used_vars_dict(used_vars),  # now a subdictionary
+            "variables_used": build_used_vars_dict(used_vars),  
             "synonyms": charge_info.get("synonyms", []),
             "charge_description": charge_info["description"],
         }
@@ -197,10 +197,8 @@ def generate_output_structure() -> Dict[str, Any]:
 if __name__ == "__main__":
     output_structure = generate_output_structure()
 
-    # Use a run_id for the filename only, not in the JSON payload
     run_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    # Ensure target folder exists
     save_dir = "LLM_generated_data/synthetic_dataset"
     os.makedirs(save_dir, exist_ok=True)
 

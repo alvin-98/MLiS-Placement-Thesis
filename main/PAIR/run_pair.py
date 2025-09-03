@@ -40,7 +40,7 @@ def evaluate_model(device,dataset,max_iterations,n_runs,implementation_style):
             formatted_messages = []
             formatted_messages.append({"role": "system", "content":sys_prompt})
             
-            #prompt = attack_tokenizer.apply_chat_template(formatted_messages, tokenize=False, add_generation_prompt=True)
+
             defence_response = 'N/A' #for logging purposes only
             str_scores = [] #for logging purposes only
             
@@ -56,7 +56,7 @@ def evaluate_model(device,dataset,max_iterations,n_runs,implementation_style):
                         init_prompt = attack_tokenizer.apply_chat_template(formatted_messages, tokenize=False, add_generation_prompt=True)
                         attacker_inputs = attack_tokenizer(text=init_prompt, return_tensors='pt', padding=True, truncation=True).to(attack_model.device)
 
-                        # Generate outputs
+
                         with torch.no_grad():
                             attack_outputs = attack_model.generate(
                                 **attacker_inputs,
@@ -65,13 +65,12 @@ def evaluate_model(device,dataset,max_iterations,n_runs,implementation_style):
                                 pad_token_id=attack_tokenizer.eos_token_id
                             )
 
-                        # Slice off the input part to get only the generated continuation
                         attack_text = attack_tokenizer.batch_decode(attack_outputs[:, attacker_inputs['input_ids'].size(1):], skip_special_tokens=True)
                         defence_input = defence_tokenizer(text=attack_text[0], return_tensors='pt', padding=True, truncation=True).to(defence_model.device)    
                 else:
                     attacker_inputs = attack_tokenizer(text=prompt, return_tensors='pt', padding=True, truncation=True).to(attack_model.device)
 
-                    # Generate outputs
+
                     with torch.no_grad():
                         attack_outputs = attack_model.generate(
                             **attacker_inputs,
@@ -80,9 +79,8 @@ def evaluate_model(device,dataset,max_iterations,n_runs,implementation_style):
                             pad_token_id=attack_tokenizer.eos_token_id
                         )
 
-                    # Slice off the input part to get only the generated continuation
+
                     attack_text = attack_tokenizer.batch_decode(attack_outputs[:, attacker_inputs['input_ids'].size(1):], skip_special_tokens=True)
-                    # Extract the improvement and prompt from the attack response
                     improvement, new_prompt = extract_improvement_and_prompt(attack_text[0])
                     if new_prompt == None:
                         statement = f'iteration {k+1} for prompt {i+1} failed. Skipping to next prompt'
@@ -151,7 +149,7 @@ def evaluate_model(device,dataset,max_iterations,n_runs,implementation_style):
                     df_rows.append(final_row)
                     break
             else:
-                # This else runs only if the for loop completes without hitting 'break'
+                
 
                 final_row = {
                         'objective': objective,
@@ -167,23 +165,22 @@ def evaluate_model(device,dataset,max_iterations,n_runs,implementation_style):
     return results_df       
         
 def extract_improvement_and_prompt(text):
-    # Find improvement
+
     imp_start = text.find('"improvement":')
     prompt_start = text.find('"prompt":')
     if imp_start == -1 or prompt_start == -1:
         return None, None
 
-    # Move past the keys and the following ': "' part
+
     imp_start += len('"improvement":') + 1
     prompt_start += len('"prompt":') + 1
 
-    # Extract improvement string
-    # Find the first quote after imp_start
+
     imp_quote_start = text.find('"', imp_start)
     imp_quote_end = text.find('"', imp_quote_start + 1)
     improvement = text[imp_quote_start + 1 : imp_quote_end]
 
-    # Extract prompt string
+
     prompt_quote_start = text.find('"', prompt_start)
     prompt_quote_end = text.find('"', prompt_quote_start + 1)
     prompt = text[prompt_quote_start + 1 : prompt_quote_end]
